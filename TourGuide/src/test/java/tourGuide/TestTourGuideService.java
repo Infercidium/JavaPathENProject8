@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
@@ -83,12 +83,12 @@ public class TestTourGuideService {
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		InternalTestHelper.setInternalUserNumber(0);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
+
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
-		
+
 		tourGuideService.tracker.stopTracking();
-		
+
 		assertEquals(user.getUserId(), visitedLocation.userId);
 	}
 	
@@ -103,7 +103,7 @@ public class TestTourGuideService {
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 		
-		List<Attraction> attractions = tourGuideService.getNearByAttractions(visitedLocation);
+		Map<String, Map<String, Double>> attractions = tourGuideService.getNearByAttractions(user.getUserName());
 		
 		tourGuideService.tracker.stopTracking();
 		
@@ -124,6 +124,4 @@ public class TestTourGuideService {
 		
 		assertEquals(10, providers.size());
 	}
-	
-	
 }

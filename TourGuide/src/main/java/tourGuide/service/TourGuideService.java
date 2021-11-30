@@ -2,13 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,6 +14,7 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
@@ -35,7 +30,7 @@ public class TourGuideService {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
-	
+
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
@@ -68,7 +63,19 @@ public class TourGuideService {
 	public List<User> getAllUsers() {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
-	
+
+	//TODO à tester
+	public Map<String, Map<String, Double>> getAllUsersLocation() {
+		Map<String, Map<String, Double>> usersLocation = new HashMap<>();
+		for (User currentUser : getAllUsers()) {
+			Map<String, Double> currentLocation = new HashMap<>();
+			currentLocation.put("longitude", currentUser.getLastVisitedLocation().location.longitude);
+			currentLocation.put("latitude", currentUser.getLastVisitedLocation().location.latitude);
+			usersLocation.put(currentUser.getUserId().toString(), currentLocation);
+		}
+		return usersLocation;
+	}
+
 	public void addUser(User user) {
 		if(!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
@@ -90,15 +97,23 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for(Attraction attraction : gpsUtil.getAttractions()) {
-			if(rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
+	//TODO Methode à tester
+	public Map<String, Map<String, Double>> getNearByAttractions(String userName) {
+		User user = getUser(userName);
+		VisitedLocation visitedLocation = getUserLocation(user);
+		Map<String, Map<String, Double>> attractionsMap = new HashMap<>();
+		List<Attraction> attractionList = gpsUtil.getAttractions().stream().sorted((a1, a2) -> (int) (rewardsService.getDistance(a1, visitedLocation.location) - rewardsService.getDistance(a2, visitedLocation.location))).collect(Collectors.toList());
+		for(int i = 0; i < 5; i++) {
+			Map<String, Double> attraction = new HashMap<>();
+			attraction.put("longitude", attractionList.get(i).longitude);
+			attraction.put("latitude", attractionList.get(i).latitude);
+			attraction.put("user longitude", visitedLocation.location.longitude);
+			attraction.put("user latitude", visitedLocation.location.latitude);
+			attraction.put("distance", rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
+			attraction.put("Reward point", Double.valueOf(rewardsService.getRewardPoints(attractionList.get(i), user)));
+			attractionsMap.put(attractionList.get(i).attractionName, attraction);
 		}
-		
-		return nearbyAttractions;
+		return attractionsMap;
 	}
 	
 	private void addShutDownHook() {
@@ -152,5 +167,4 @@ public class TourGuideService {
 		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
 	    return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
 	}
-	
 }
