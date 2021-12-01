@@ -91,25 +91,22 @@ public class TestTourGuideService {
 
 		assertEquals(user.getUserId(), visitedLocation.userId);
 	}
-	
-	@Ignore // Not yet implemented
+
 	@Test
 	public void getNearbyAttractions() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		InternalTestHelper.setInternalUserNumber(0);
+		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
-		
-		Map<String, Map<String, Double>> attractions = tourGuideService.getNearByAttractions(user.getUserName());
-		
+		Map<String, Map<String, Double>> attractions = tourGuideService.getNearByAttractions(tourGuideService.getAllUsers().get(0).getUserName());
+		System.out.println(attractions);
 		tourGuideService.tracker.stopTracking();
 		
 		assertEquals(5, attractions.size());
 	}
-	
+
+	@Test
 	public void getTripDeals() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
@@ -121,7 +118,8 @@ public class TestTourGuideService {
 		List<Provider> providers = tourGuideService.getTripDeals(user);
 		
 		tourGuideService.tracker.stopTracking();
-		
+
+		providers.stream().map(provider -> provider.name).forEach(System.out::println);
 		assertEquals(10, providers.size());
 	}
 }

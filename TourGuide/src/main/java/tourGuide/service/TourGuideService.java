@@ -14,7 +14,6 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
-import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
@@ -50,10 +49,9 @@ public class TourGuideService {
 	}
 	
 	public VisitedLocation getUserLocation(User user) {
-		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
+		return (user.getVisitedLocations().size() > 0) ?
 			user.getLastVisitedLocation() :
 			trackUserLocation(user);
-		return visitedLocation;
 	}
 	
 	public User getUser(String userName) {
@@ -89,8 +87,10 @@ public class TourGuideService {
 		user.setTripDeals(providers);
 		return providers;
 	}
-	
+
+	//TODO Threader
 	public VisitedLocation trackUserLocation(User user) {
+		Locale.setDefault(new Locale("en", "US"));
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
@@ -110,18 +110,18 @@ public class TourGuideService {
 			attraction.put("user longitude", visitedLocation.location.longitude);
 			attraction.put("user latitude", visitedLocation.location.latitude);
 			attraction.put("distance", rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
-			attraction.put("Reward point", Double.valueOf(rewardsService.getRewardPoints(attractionList.get(i), user)));
+			attraction.put("Reward point", (double) rewardsService.getRewardPoints(attractionList.get(i), user));
 			attractionsMap.put(attractionList.get(i).attractionName, attraction);
 		}
 		return attractionsMap;
 	}
 	
 	private void addShutDownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread() { 
+		Runtime.getRuntime().addShutdownHook(new Thread() {
 		      public void run() {
 		        tracker.stopTracking();
-		      } 
-		    }); 
+		      }
+		    });
 	}
 	
 	/**********************************************************************************
