@@ -2,7 +2,13 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,6 +20,7 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
@@ -23,9 +30,10 @@ import tripPricer.TripPricer;
 
 @Service
 public class TourGuideService {
-	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
+	private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
+	private final RewardCentral rewardCentral;
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
@@ -42,6 +50,7 @@ public class TourGuideService {
 		}
 		tracker = new Tracker(this);
 		addShutDownHook();
+		rewardCentral = new RewardCentral();
 	}
 	
 	public List<UserReward> getUserRewards(User user) {
@@ -85,6 +94,7 @@ public class TourGuideService {
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(), user.getUserPreferences().getNumberOfAdults(), 
 				user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
 		user.setTripDeals(providers);
+
 		return providers;
 	}
 
@@ -97,7 +107,6 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	//TODO Methode à tester
 	public Map<String, Map<String, Double>> getNearByAttractions(String userName) {
 		User user = getUser(userName);
 		VisitedLocation visitedLocation = getUserLocation(user);
@@ -110,12 +119,12 @@ public class TourGuideService {
 			attraction.put("user longitude", visitedLocation.location.longitude);
 			attraction.put("user latitude", visitedLocation.location.latitude);
 			attraction.put("distance", rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
-			attraction.put("Reward point", (double) rewardsService.getRewardPoints(attractionList.get(i), user));
+			attraction.put("Reward point", (double) rewardCentral.getAttractionRewardPoints(attractionList.get(i).attractionId, user.getUserId()));
 			attractionsMap.put(attractionList.get(i).attractionName, attraction);
 		}
 		return attractionsMap;
 	}
-	
+
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 		      public void run() {
