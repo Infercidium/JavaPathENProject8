@@ -4,15 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
+import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
@@ -99,10 +98,10 @@ public class TestTourGuideService {
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
-        Map<String, Map<String, Double>> attractions = tourGuideService.getNearByAttractions(tourGuideService.getAllUsers().get(0).getUserName());
+        UserDto userDto = tourGuideService.getNearByAttractions(tourGuideService.getAllUsers().get(0).getUserName());
         tourGuideService.tracker.stopTracking();
 
-        assertEquals(5, attractions.size());
+        assertEquals(5, userDto.getAttractions().size());
     }
 
     @Test

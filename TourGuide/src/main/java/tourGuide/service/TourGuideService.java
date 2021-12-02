@@ -21,6 +21,8 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
+import tourGuide.dto.AttractionDto;
+import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
@@ -107,22 +109,20 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public Map<String, Map<String, Double>> getNearByAttractions(String userName) {
+	public UserDto getNearByAttractions(String userName) {
 		User user = getUser(userName);
 		VisitedLocation visitedLocation = getUserLocation(user);
-		Map<String, Map<String, Double>> attractionsMap = new HashMap<>();
-		List<Attraction> attractionList = gpsUtil.getAttractions().stream().sorted((a1, a2) -> (int) (rewardsService.getDistance(a1, visitedLocation.location) - rewardsService.getDistance(a2, visitedLocation.location))).collect(Collectors.toList());
+		UserDto userDto = new UserDto(user);
+		List<Attraction> attractionList = gpsUtil.getAttractions().stream().sorted((a1, a2)
+				-> (int) (rewardsService.getDistance(a1, visitedLocation.location) - rewardsService.getDistance(a2, visitedLocation.location)))
+				.collect(Collectors.toList());
 		for(int i = 0; i < 5; i++) {
-			Map<String, Double> attraction = new HashMap<>();
-			attraction.put("longitude", attractionList.get(i).longitude);
-			attraction.put("latitude", attractionList.get(i).latitude);
-			attraction.put("user longitude", visitedLocation.location.longitude);
-			attraction.put("user latitude", visitedLocation.location.latitude);
-			attraction.put("distance", rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
-			attraction.put("Reward point", (double) rewardCentral.getAttractionRewardPoints(attractionList.get(i).attractionId, user.getUserId()));
-			attractionsMap.put(attractionList.get(i).attractionName, attraction);
+			AttractionDto attractionDto = new AttractionDto(attractionList.get(i));
+			attractionDto.setDistance(rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
+			attractionDto.setRewardPoint(rewardCentral.getAttractionRewardPoints(attractionList.get(i).attractionId, user.getUserId()));
+			userDto.addAttractionDto(attractionDto);
 		}
-		return attractionsMap;
+		return userDto;
 	}
 
 	private void addShutDownHook() {

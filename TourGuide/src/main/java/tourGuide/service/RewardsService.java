@@ -1,16 +1,16 @@
 package tourGuide.service;
 
-import java.util.List;
-
+import gpsUtil.location.VisitedLocation;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
-import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
+
+import java.util.List;
 
 @Service
 public class RewardsService {
@@ -21,17 +21,17 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
-	private final RewardCentral rewardsCentral;
+	private final RewardCentral rewardCentral;
 	
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
-		this.rewardsCentral = rewardCentral;
+		this.rewardCentral = rewardCentral;
 	}
 	
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
 	}
-	
+
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
@@ -50,17 +50,17 @@ public class RewardsService {
 			}
 		}
 	}
-	
-	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return getDistance(attraction, location) > attractionProximityRange ? false : true;
+
+	private int getRewardPoints(Attraction attraction, User user) {
+		return rewardCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
-	
+
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
-
-	private int getRewardPoints(Attraction attraction, User user) {
-		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
+	
+	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
+		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
 	
 	public double getDistance(Location loc1, Location loc2) {
