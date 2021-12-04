@@ -1,19 +1,22 @@
 package tourGuide.service;
 
-import gpsUtil.location.VisitedLocation;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import rewardCentral.RewardCentral;
+import tourGuide.calculate.CalculateRewards;
 import tourGuide.user.User;
-import tourGuide.user.UserReward;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class RewardsService {
+
+	private List<Thread> threadList = new ArrayList<>();
+
     private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
 	// proximity in miles
@@ -38,27 +41,23 @@ public class RewardsService {
 
 	//TODO Thread
 	public void calculateRewards(User user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
-		for(VisitedLocation visitedLocation : userLocations) {
-			for(Attraction attraction : attractions) {
-				if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
-					if(nearAttraction(visitedLocation, attraction)) {
-						user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
-					}
-				}
+		CalculateRewards calculateRewards = new CalculateRewards(gpsUtil, rewardCentral, this, user, proximityBuffer);
+		Thread thread = new Thread(calculateRewards);
+		thread.start();
+		threadList.add(thread);
+	}
+
+	public void calculateRewardsEnd() {
+		for (Thread thread : threadList) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
+		threadList = new ArrayList<>();
 	}
 
-	private int getRewardPoints(Attraction attraction, User user) {
-		return rewardCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
-	}
-
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
-	}
-	
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
@@ -76,5 +75,4 @@ public class RewardsService {
         double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
         return statuteMiles;
 	}
-
 }

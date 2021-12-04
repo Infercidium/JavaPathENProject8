@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import gpsUtil.location.Location;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
@@ -30,7 +32,7 @@ public class TestTourGuideService {
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
         tourGuideService.tracker.stopTracking();
-        assertTrue(visitedLocation.userId.equals(user.getUserId()));
+        assertEquals(user.getUserId(), visitedLocation.userId);
     }
 
     @Test
@@ -74,6 +76,20 @@ public class TestTourGuideService {
 
         assertTrue(allUsers.contains(user));
         assertTrue(allUsers.contains(user2));
+    }
+
+    @Test
+    public void getAllUsersLocation() {
+        GpsUtil gpsUtil = new GpsUtil();
+        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+        InternalTestHelper.setInternalUserNumber(5);
+        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+
+        Map<String, Map<String, Double>> userLocation = tourGuideService.getAllUsersLocation();
+
+        tourGuideService.tracker.stopTracking();
+
+        assertEquals(5, userLocation.size());
     }
 
     @Test
