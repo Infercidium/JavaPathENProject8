@@ -1,4 +1,4 @@
-package tourGuide.calculate;
+package tourGuide.threads;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;

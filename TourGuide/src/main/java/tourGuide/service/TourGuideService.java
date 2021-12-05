@@ -21,6 +21,7 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
+import tourGuide.constant.NearbyAttraction;
 import tourGuide.dto.AttractionDto;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
@@ -31,7 +32,7 @@ import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
-public class TourGuideService {
+public class TourGuideService implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
@@ -39,6 +40,8 @@ public class TourGuideService {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
+
+	private Map<String, VisitedLocation> locationUsersMap = new HashMap<>();
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
@@ -60,6 +63,8 @@ public class TourGuideService {
 	}
 	
 	public VisitedLocation getUserLocation(User user) {
+		VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), new Location(33.817595D, -117.922008D), new Date());
+		user.addToVisitedLocations(visitedLocation);
 		return (user.getVisitedLocations().size() > 0) ?
 			user.getLastVisitedLocation() :
 			trackUserLocation(user);
@@ -73,7 +78,7 @@ public class TourGuideService {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
-	//TODO à tester
+	//TODO Rendre mieux avec DTO ou la MapPermannente
 	public Map<String, Map<String, Double>> getAllUsersLocation() {
 		Map<String, Map<String, Double>> usersLocation = new HashMap<>();
 		for (User currentUser : getAllUsers()) {
@@ -100,13 +105,23 @@ public class TourGuideService {
 		return providers;
 	}
 
-	//TODO Threader
 	public VisitedLocation trackUserLocation(User user) {
-		Locale.setDefault(new Locale("en", "US"));
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
+		VisitedLocation visitedLocation = locationUsersMap.get(user.getUserId().toString());
 		return visitedLocation;
+	}
+
+	@Override
+	public void run() {
+		while (true) {
+			Locale.setDefault(new Locale("en", "US"));
+			for (User user : getAllUsers()) {
+				VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+				user.addToVisitedLocations(visitedLocation);
+				rewardsService.calculateRewards(user);
+				rewardsService.calculateRewardsEnd();
+				locationUsersMap.put(user.getUserId().toString(), visitedLocation);
+			}
+		}
 	}
 
 	public UserDto getNearByAttractions(String userName) {
@@ -116,7 +131,7 @@ public class TourGuideService {
 		List<Attraction> attractionList = gpsUtil.getAttractions().stream().sorted((a1, a2)
 				-> (int) (rewardsService.getDistance(a1, visitedLocation.location) - rewardsService.getDistance(a2, visitedLocation.location)))
 				.collect(Collectors.toList());
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < NearbyAttraction.NEARBY_ATTRACTION_NUMBER; i++) {
 			AttractionDto attractionDto = new AttractionDto(attractionList.get(i));
 			attractionDto.setDistance(rewardsService.getDistance(visitedLocation.location, attractionList.get(i)));
 			attractionDto.setRewardPoint(rewardCentral.getAttractionRewardPoints(attractionList.get(i).attractionId, user.getUserId()));

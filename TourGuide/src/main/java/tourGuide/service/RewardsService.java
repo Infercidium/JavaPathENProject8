@@ -6,7 +6,7 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import rewardCentral.RewardCentral;
-import tourGuide.calculate.CalculateRewards;
+import tourGuide.threads.CalculateRewards;
 import tourGuide.user.User;
 
 import java.util.ArrayList;
@@ -39,7 +39,6 @@ public class RewardsService {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
-	//TODO Thread
 	public void calculateRewards(User user) {
 		CalculateRewards calculateRewards = new CalculateRewards(gpsUtil, rewardCentral, this, user, proximityBuffer);
 		Thread thread = new Thread(calculateRewards);

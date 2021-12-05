@@ -21,20 +21,30 @@ import tourGuide.user.UserReward;
 
 public class TestRewardsService {
 
+	//TODO a voir avec mon mentor
 	@Test
 	public void userGetRewards() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
-		InternalTestHelper.setInternalUserNumber(0);
+		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		
-		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		Thread thread = new Thread(tourGuideService);
+		thread.start();
+
+		User user = tourGuideService.getAllUsers().get(0);
+
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+		try {
+			thread.join(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tourGuideService.trackUserLocation(user);
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
+
 		assertTrue(userRewards.size() == 1);
 	}
 	
@@ -57,6 +67,7 @@ public class TestRewardsService {
 		tourGuideService.tracker.stopTracking();
 
 		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
+		rewardsService.calculateRewardsEnd();
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());

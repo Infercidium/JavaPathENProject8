@@ -22,16 +22,24 @@ import tripPricer.Provider;
 
 public class TestTourGuideService {
 
+    //TODO a verifier avec Mentor
     @Test
     public void getUserLocation() {
         GpsUtil gpsUtil = new GpsUtil();
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-        InternalTestHelper.setInternalUserNumber(0);
+        InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
-        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        Thread thread = new Thread(tourGuideService);
+        thread.start();
+        try {
+            thread.join(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
         tourGuideService.tracker.stopTracking();
+
         assertEquals(user.getUserId(), visitedLocation.userId);
     }
 
@@ -92,14 +100,21 @@ public class TestTourGuideService {
         assertEquals(5, userLocation.size());
     }
 
+    //TODO a voir avec Mentor
     @Test
     public void trackUser() {
         GpsUtil gpsUtil = new GpsUtil();
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-        InternalTestHelper.setInternalUserNumber(0);
+        InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
-        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        Thread thread = new Thread(tourGuideService);
+        thread.start();
+        try {
+            thread.join(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
         tourGuideService.tracker.stopTracking();
