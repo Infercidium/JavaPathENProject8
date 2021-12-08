@@ -25,7 +25,7 @@ public class RewardsService {
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardCentral;
-	private ExecutorService executorService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
+	private ExecutorService executorRewardService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 	
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
@@ -42,13 +42,13 @@ public class RewardsService {
 
 	public void calculateRewards(User user) {
 		CalculateRewards calculateRewards = new CalculateRewards(gpsUtil, rewardCentral, this, user, proximityBuffer);
-		executorService.execute(calculateRewards);
+		executorRewardService.execute(calculateRewards);
 	}
 
 	public void calculateRewardsEnd() {
-		executorService.shutdown();
+		executorRewardService.shutdown();
 		try {
-			executorService.awaitTermination(24L, TimeUnit.HOURS);
+			executorRewardService.awaitTermination(24L, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

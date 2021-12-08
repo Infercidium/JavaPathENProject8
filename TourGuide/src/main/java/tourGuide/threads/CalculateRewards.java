@@ -29,6 +29,7 @@ public class CalculateRewards implements Runnable {
     public void run() {
         List<VisitedLocation> userLocations = user.getVisitedLocations();
         List<Attraction> attractions = gpsUtil.getAttractions();
+
         for(VisitedLocation visitedLocation : userLocations) {
             for(Attraction attraction : attractions) {
                 if(user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {

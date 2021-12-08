@@ -28,13 +28,7 @@ public class TestTourGuideService {
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-        Thread thread = new Thread(tourGuideService);
-        thread.start();
-        try {
-            thread.join(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
         tourGuideService.tracker.stopTracking();
@@ -106,13 +100,7 @@ public class TestTourGuideService {
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-        Thread thread = new Thread(tourGuideService);
-        thread.start();
-        try {
-            thread.join(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 

@@ -5,10 +5,11 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,10 +23,12 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
+import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.constant.NearbyAttraction;
 import tourGuide.dto.AttractionDto;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
+import tourGuide.threads.TrackUserLocation;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
@@ -33,7 +36,7 @@ import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
-public class TourGuideService implements Runnable {
+public class TourGuideService {
 	private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
@@ -41,14 +44,13 @@ public class TourGuideService implements Runnable {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
+	private ExecutorService executorTourService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 
 	@Value("${reward.url}")
 	private String rewardUrlBase;
 
 	@Value("${tracker.url}")
 	private String trackerUrlBase;
-
-	private Map<String, VisitedLocation> locationUsersMap = new HashMap<>();
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
@@ -65,10 +67,7 @@ public class TourGuideService implements Runnable {
 		rewardCentral = new RewardCentral();
 	}
 
-	//TODO UserReward avec Cacul
 	public List<UserReward> getUserRewards(User user) {
-		rewardsService.calculateRewards(user);
-		rewardsService.calculateRewardsEnd();
 		return user.getUserRewards();
 	}
 	
@@ -112,22 +111,13 @@ public class TourGuideService implements Runnable {
 		return providers;
 	}
 
+	//TODO EN COURS
 	public VisitedLocation trackUserLocation(User user) {
-		VisitedLocation visitedLocation = locationUsersMap.get(user.getUserId().toString());
-		return visitedLocation;
-	}
-
-	//TODO RewardsControll Calcule dedans obligatoire ?
-	@Override
-	public void run() {
-		while (true) {
-			Locale.setDefault(new Locale("en", "US"));
-			for (User user : getAllUsers()) {
-				VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-				user.addToVisitedLocations(visitedLocation);
-				locationUsersMap.put(user.getUserId().toString(), visitedLocation);
-			}
-		}
+		TrackUserLocation trackUserLocation = new TrackUserLocation(gpsUtil, user);
+		executorTourService.execute(trackUserLocation);
+		rewardsService.calculateRewards(user);
+		rewardsService.calculateRewardsEnd();
+		return user.getLastVisitedLocation();
 	}
 
 	//TODO RewardController
