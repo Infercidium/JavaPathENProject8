@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import gpsUtil.location.Location;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;

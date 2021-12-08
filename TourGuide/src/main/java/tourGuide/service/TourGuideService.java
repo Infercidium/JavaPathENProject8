@@ -76,7 +76,6 @@ public class TourGuideService implements Runnable {
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
-	//TODO Rendre mieux avec DTO ou la MapPermannente
 	public Map<String, Map<String, Double>> getAllUsersLocation() {
 		Map<String, Map<String, Double>> usersLocation = new HashMap<>();
 		for (User currentUser : getAllUsers()) {
@@ -84,7 +83,7 @@ public class TourGuideService implements Runnable {
 			currentLocation.put("longitude", currentUser.getLastVisitedLocation().location.longitude);
 			currentLocation.put("latitude", currentUser.getLastVisitedLocation().location.latitude);
 			usersLocation.put(currentUser.getUserId().toString(), currentLocation);
-		}
+			}
 		return usersLocation;
 	}
 

@@ -1,7 +1,9 @@
 package tourGuide;
 
+import java.util.Date;
 import java.util.List;
 
+import gpsUtil.location.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +31,15 @@ public class TourGuideController {
     public String getLocation(@RequestParam String userName) {
     	VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
         return JsonStream.serialize(visitedLocation.location);
+    }
+
+    @RequestMapping("/goToDisneyland")
+    public String goToDisney(@RequestParam String userName) {
+        User user = tourGuideService.getUser(userName);
+        Location location = new Location(33.817595D, -117.922008D);
+        VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), location, new Date());
+        user.addToVisitedLocations(visitedLocation);
+        return getLocation(userName);
     }
 
     @RequestMapping("/getNearbyAttractions") 
