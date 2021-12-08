@@ -12,6 +12,7 @@ import org.junit.Test;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import org.springframework.boot.test.context.SpringBootTest;
 import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.service.RewardsService;
@@ -29,21 +30,23 @@ public class TestRewardsService {
 
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-		Thread thread = new Thread(tourGuideService);
-		thread.start();
+		/*Thread thread = new Thread(tourGuideService);
+		thread.start();*/
 
 		User user = tourGuideService.getAllUsers().get(0);
 
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
-		try {
+		/*try {
 			thread.join(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		tourGuideService.trackUserLocation(user);
+		tourGuideService.trackUserLocation(user);*/
+		tourGuideService.getUserRewards(user);
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
+
 
 		assertTrue(userRewards.size() == 1);
 	}

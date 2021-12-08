@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -41,6 +42,12 @@ public class TourGuideService implements Runnable {
 	public final Tracker tracker;
 	boolean testMode = true;
 
+	@Value("${reward.url}")
+	private String rewardUrlBase;
+
+	@Value("${tracker.url}")
+	private String trackerUrlBase;
+
 	private Map<String, VisitedLocation> locationUsersMap = new HashMap<>();
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
@@ -57,8 +64,11 @@ public class TourGuideService implements Runnable {
 		addShutDownHook();
 		rewardCentral = new RewardCentral();
 	}
-	
+
+	//TODO UserReward avec Cacul
 	public List<UserReward> getUserRewards(User user) {
+		rewardsService.calculateRewards(user);
+		rewardsService.calculateRewardsEnd();
 		return user.getUserRewards();
 	}
 	
@@ -107,6 +117,7 @@ public class TourGuideService implements Runnable {
 		return visitedLocation;
 	}
 
+	//TODO RewardsControll Calcule dedans obligatoire ?
 	@Override
 	public void run() {
 		while (true) {
@@ -114,13 +125,12 @@ public class TourGuideService implements Runnable {
 			for (User user : getAllUsers()) {
 				VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 				user.addToVisitedLocations(visitedLocation);
-				rewardsService.calculateRewards(user);
-				rewardsService.calculateRewardsEnd();
 				locationUsersMap.put(user.getUserId().toString(), visitedLocation);
 			}
 		}
 	}
 
+	//TODO RewardController
 	public UserDto getNearByAttractions(String userName) {
 		User user = getUser(userName);
 		VisitedLocation visitedLocation = getUserLocation(user);

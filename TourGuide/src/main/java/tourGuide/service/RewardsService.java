@@ -6,16 +6,16 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import rewardCentral.RewardCentral;
+import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.threads.CalculateRewards;
 import tourGuide.user.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RewardsService {
-
-	private List<Thread> threadList = new ArrayList<>();
 
     private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
@@ -25,6 +25,7 @@ public class RewardsService {
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardCentral;
+	private ExecutorService executorService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 	
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
@@ -41,20 +42,17 @@ public class RewardsService {
 
 	public void calculateRewards(User user) {
 		CalculateRewards calculateRewards = new CalculateRewards(gpsUtil, rewardCentral, this, user, proximityBuffer);
-		Thread thread = new Thread(calculateRewards);
-		thread.start();
-		threadList.add(thread);
+		executorService.execute(calculateRewards);
 	}
 
 	public void calculateRewardsEnd() {
-		for (Thread thread : threadList) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		executorService.shutdown();
+		try {
+			executorService.awaitTermination(24L, TimeUnit.HOURS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		threadList = new ArrayList<>();
+
 	}
 
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
