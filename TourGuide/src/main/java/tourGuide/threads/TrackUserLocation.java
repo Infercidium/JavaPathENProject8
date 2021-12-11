@@ -2,13 +2,11 @@ package tourGuide.threads;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
-import tourGuide.service.RewardsService;
 import tourGuide.user.User;
 
 import java.util.Locale;
 
 public class TrackUserLocation implements Runnable {
-
     private final GpsUtil gpsUtil;
     private final User user;
 

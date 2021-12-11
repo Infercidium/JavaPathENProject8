@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
+import org.springframework.boot.test.context.SpringBootTest;
 import rewardCentral.RewardCentral;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
@@ -19,9 +20,9 @@ import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tripPricer.Provider;
 
+@SpringBootTest
 public class TestTourGuideService {
 
-    //TODO a verifier avec Mentor
     @Test
     public void getUserLocation() {
         GpsUtil gpsUtil = new GpsUtil();

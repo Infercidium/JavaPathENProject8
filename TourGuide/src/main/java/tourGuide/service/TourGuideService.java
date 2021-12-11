@@ -2,12 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -44,7 +39,7 @@ public class TourGuideService {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
-	private ExecutorService executorTourService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
+	private ExecutorService executorTourGuideService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 
 	@Value("${reward.url}")
 	private String rewardUrlBase;
@@ -68,6 +63,8 @@ public class TourGuideService {
 	}
 
 	public List<UserReward> getUserRewards(User user) {
+		rewardsService.calculateRewards(user);
+		rewardsService.calculateRewardsEnd();
 		return user.getUserRewards();
 	}
 	
@@ -111,16 +108,12 @@ public class TourGuideService {
 		return providers;
 	}
 
-	//TODO EN COURS
 	public VisitedLocation trackUserLocation(User user) {
 		TrackUserLocation trackUserLocation = new TrackUserLocation(gpsUtil, user);
-		executorTourService.execute(trackUserLocation);
-		rewardsService.calculateRewards(user);
-		rewardsService.calculateRewardsEnd();
+		executorTourGuideService.execute(trackUserLocation);
 		return user.getLastVisitedLocation();
 	}
 
-	//TODO RewardController
 	public UserDto getNearByAttractions(String userName) {
 		User user = getUser(userName);
 		VisitedLocation visitedLocation = getUserLocation(user);

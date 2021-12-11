@@ -20,6 +20,7 @@ import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
+@SpringBootTest
 public class TestRewardsService {
 
 	//TODO a voir avec mon mentor
@@ -36,7 +37,7 @@ public class TestRewardsService {
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 
-		tourGuideService.trackUserLocation(user);
+		tourGuideService.getUserRewards(user);
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 
@@ -62,8 +63,6 @@ public class TestRewardsService {
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		tourGuideService.tracker.stopTracking();
 
-		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
-		rewardsService.calculateRewardsEnd();
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
