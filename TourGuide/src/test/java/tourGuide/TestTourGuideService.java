@@ -32,6 +32,7 @@ public class TestTourGuideService {
 
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
+
         tourGuideService.tracker.stopTracking();
 
         assertEquals(user.getUserId(), visitedLocation.userId);
@@ -94,7 +95,6 @@ public class TestTourGuideService {
         assertEquals(5, userLocation.size());
     }
 
-    //TODO a voir avec Mentor
     @Test
     public void trackUser() {
         GpsUtil gpsUtil = new GpsUtil();
@@ -104,6 +104,7 @@ public class TestTourGuideService {
 
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
+
 
         tourGuideService.tracker.stopTracking();
 

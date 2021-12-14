@@ -1,12 +1,11 @@
 package tourGuide;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
@@ -23,7 +22,6 @@ import tourGuide.user.UserReward;
 @SpringBootTest
 public class TestRewardsService {
 
-	//TODO a voir avec mon mentor
 	@Test
 	public void userGetRewards() {
 		GpsUtil gpsUtil = new GpsUtil();
@@ -37,12 +35,13 @@ public class TestRewardsService {
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 
-		tourGuideService.getUserRewards(user);
+		tourGuideService.trackUserLocation(user);
+
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 
 
-		assertTrue(userRewards.size() == 1);
+		assertEquals(1, userRewards.size());
 	}
 	
 	@Test
@@ -62,6 +61,8 @@ public class TestRewardsService {
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 		tourGuideService.tracker.stopTracking();
+
+		tourGuideService.trackUserLocation(tourGuideService.getAllUsers().get(0));
 
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 
