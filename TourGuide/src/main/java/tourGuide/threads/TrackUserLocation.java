@@ -1,24 +1,31 @@
 package tourGuide.threads;
 
-import gpsUtil.GpsUtil;
-import gpsUtil.location.VisitedLocation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.user.User;
 
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
-public class TrackUserLocation implements Runnable {
-    private final GpsUtil gpsUtil;
+public class TrackUserLocation implements Callable<User> {
     private final User user;
 
-    public TrackUserLocation(GpsUtil gpsUtil, User user) {
-        this.gpsUtil = gpsUtil;
+    @Value("${property.gpsUtil.url}")
+    private String gpsUtilUrlBase = "http://localhost:8080";
+
+    WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
+
+    public TrackUserLocation(User user) {
         this.user = user;
     }
 
     @Override
-    public void run() {
+    public User call() throws Exception {
         Locale.setDefault(new Locale("en", "US"));
-        VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-        user.addToVisitedLocations(visitedLocation);
+        gpsClient.get().uri("/userLocation/{userID}", user.getUserId()).accept(MediaType.APPLICATION_JSON)
+                .retrieve().bodyToMono(tourGuide.model.VisitedLocation.class)
+                .subscribe(data -> {user.addToVisitedLocations(data);});
+        return user;
     }
 }

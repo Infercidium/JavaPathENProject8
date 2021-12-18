@@ -13,8 +13,8 @@ public class UserDto {
 
     public UserDto(User user) {
         this.userName = user.getUserName();
-        this.latitude = user.getLastVisitedLocation().location.latitude;
-        this.longitude = user.getLastVisitedLocation().location.longitude;
+        this.latitude = user.getLastVisitedLocation().getLocation().getLatitude();
+        this.longitude = user.getLastVisitedLocation().getLocation().getLongitude();
     }
 
     public String getUserName() {

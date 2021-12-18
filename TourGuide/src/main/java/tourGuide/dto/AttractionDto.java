@@ -1,6 +1,7 @@
 package tourGuide.dto;
 
-import gpsUtil.location.Attraction;
+
+import tourGuide.model.Attraction;
 
 public class AttractionDto {
     private String name;
@@ -10,9 +11,9 @@ public class AttractionDto {
     private int rewardPoint;
 
     public AttractionDto(Attraction attraction) {
-        this.name = attraction.attractionName;
-        this.latitude = attraction.latitude;
-        this.longitude = attraction.longitude;
+        this.name = attraction.getAttractionName();
+        this.latitude = attraction.getLatitude();
+        this.longitude = attraction.getLongitude();
     }
 
     public String getName() {

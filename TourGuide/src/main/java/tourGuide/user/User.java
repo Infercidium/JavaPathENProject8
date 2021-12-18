@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import gpsUtil.location.VisitedLocation;
+import tourGuide.model.VisitedLocation;
 import tripPricer.Provider;
 
 public class User {
@@ -70,7 +70,7 @@ public class User {
 	}
 	
 	public void addUserReward(UserReward userReward) {
-		if(userRewards.stream().filter(r -> r.attraction.attractionName.equals(userReward.attraction.attractionName)).count() == 0) {
+		if(userRewards.stream().filter(r -> r.attraction.getAttractionName().equals(userReward.attraction.getAttractionName())).count() == 0) {
 			userRewards.add(userReward);
 		}
 	}
