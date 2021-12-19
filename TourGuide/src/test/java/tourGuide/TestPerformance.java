@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import gpsUtil.GpsUtil;
@@ -19,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import rewardCentral.RewardCentral;
+import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.controller.GpsUtilController;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
