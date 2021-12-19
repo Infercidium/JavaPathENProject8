@@ -25,7 +25,7 @@ import tourGuide.user.UserReward;
 
 @SpringBootTest
 public class TestRewardsService {
-	@Value("${property.gpsUtil.url}")
+	@Value("${gpsUtil.url}")
 	private String gpsUtilUrlBase = "http://localhost:8080";
 
 	@Test
@@ -54,7 +54,7 @@ public class TestRewardsService {
 
 		assertEquals(1, userRewards.size());
 	}
-	
+
 	@Test
 	public void isWithinAttractionProximity() {
 		RewardsService rewardsService = new RewardsService(new RewardCentral());
@@ -64,6 +64,7 @@ public class TestRewardsService {
 		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
 		List<Attraction> attractionList = attractionFlux.blockLast();
+
 		Attraction attraction = attractionList.get(0);
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}

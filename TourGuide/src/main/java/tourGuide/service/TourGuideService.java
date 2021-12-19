@@ -2,18 +2,13 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import gpsUtil.GpsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +63,7 @@ public class TourGuideService {
             logger.debug("Finished initializing users");
         }
         locationTracker = new LocationTracker(this);
-        rewardTracker = new RewardTracker(rewardsService, this);
+        rewardTracker = new RewardTracker(this.rewardsService, this);
         addShutDownHook();
         rewardCentral = new RewardCentral();
         System.out.println("gpsUtil = " + gpsUtilUrlBase);
@@ -121,9 +116,16 @@ public class TourGuideService {
 
     public VisitedLocation trackUserLocation(User user) {
         Locale.setDefault(new Locale("en", "US"));
-        gpsClient.get().uri("/userLocation/{userID}", user.getUserId()).accept(MediaType.APPLICATION_JSON)
-                .retrieve().bodyToMono(VisitedLocation.class)
-                .subscribe(data -> {user.addToVisitedLocations(data);});
+        GpsUtil gpsUtil = new GpsUtil();
+        gpsUtil.location.VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+        VisitedLocation visitedLocation1 = new VisitedLocation();
+        Location location = new Location();
+        location.setLatitude(visitedLocation.location.latitude);
+        location.setLongitude(visitedLocation.location.longitude);
+        visitedLocation1.setLocation(location);
+        visitedLocation1.setTimeVisited(visitedLocation.timeVisited);
+        visitedLocation1.setUserId(visitedLocation.userId);
+        user.addToVisitedLocations(visitedLocation1);
         return user.getLastVisitedLocation();
     }
 
@@ -137,9 +139,21 @@ public class TourGuideService {
         VisitedLocation visitedLocation = getUserLocation(user);
         UserDto userDto = new UserDto(user);
 
-        Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
-        List<Attraction> attractionList = attractionFlux.blockLast();
+        GpsUtil gpsUtil = new GpsUtil();
+        //TODO Provisoire
+        List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
+        List<Attraction> attractionList = new ArrayList<>();
+        for (gpsUtil.location.Attraction attraction : attractions) {
+            Attraction attraction1 = new Attraction();
+            attraction1.setAttractionId(attraction.attractionId);
+            attraction1.setAttractionName(attraction.attractionName);
+            attraction1.setCity(attraction.city);
+            attraction1.setState(attraction.state);
+            attraction1.setLatitude(attraction.latitude);
+            attraction1.setLongitude(attraction.longitude);
+            attractionList.add(attraction1);
+        }
+
         attractionList.stream().sorted((a1, a2)
                         -> (int) (rewardsService.getDistance(a1, visitedLocation.getLocation()) - rewardsService.getDistance(a2, visitedLocation.getLocation())))
                 .collect(Collectors.toList());

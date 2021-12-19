@@ -2,10 +2,13 @@ package tourGuide;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import gpsUtil.GpsUtil;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 
@@ -16,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import rewardCentral.RewardCentral;
+import tourGuide.controller.GpsUtilController;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -26,7 +30,7 @@ import tourGuide.user.User;
 @SpringBootTest
 public class TestPerformance {
 
-	@Value("${property.gpsUtil.url}")
+	@Value("${gpsUtil.url}")
 	private String gpsUtilUrlBase = "http://localhost:8080";
 
 	/*
@@ -77,15 +81,27 @@ public class TestPerformance {
 		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(100);
+		InternalTestHelper.setInternalUserNumber(10);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
 		tourGuideService.locationTracker.stopTracking();
+		tourGuideService.rewardTracker.stopTracking();
 
-		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
-				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
-		List<Attraction> attractionList = attractionFlux.blockLast();
+		GpsUtil gpsUtil = new GpsUtil();
+		//TODO Provisoire
+		List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
+		List<Attraction> attractionList = new ArrayList<>();
+		for (gpsUtil.location.Attraction attraction : attractions) {
+			Attraction attraction1 = new Attraction();
+			attraction1.setAttractionId(attraction.attractionId);
+			attraction1.setAttractionName(attraction.attractionName);
+			attraction1.setCity(attraction.city);
+			attraction1.setState(attraction.state);
+			attraction1.setLatitude(attraction.latitude);
+			attraction1.setLongitude(attraction.longitude);
+			attractionList.add(attraction1);
+		}
 
 	    Attraction attraction = attractionList.get(0);
 
