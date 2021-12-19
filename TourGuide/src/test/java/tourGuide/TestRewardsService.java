@@ -26,7 +26,7 @@ import tourGuide.user.UserReward;
 @SpringBootTest
 public class TestRewardsService {
 	@Value("${property.gpsUtil.url}")
-	private String gpsUtilUrlBase;
+	private String gpsUtilUrlBase = "http://localhost:8080";
 
 	@Test
 	public void userGetRewards() {
@@ -49,7 +49,7 @@ public class TestRewardsService {
 		tourGuideService.trackUserLocation(user);
 
 		List<UserReward> userRewards = user.getUserRewards();
-		tourGuideService.tracker.stopTracking();
+		tourGuideService.locationTracker.stopTracking();
 
 
 		assertEquals(1, userRewards.size());
@@ -75,7 +75,7 @@ public class TestRewardsService {
 
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
-		tourGuideService.tracker.stopTracking();
+		tourGuideService.locationTracker.stopTracking();
 
 		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 

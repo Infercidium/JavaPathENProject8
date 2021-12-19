@@ -2,7 +2,6 @@ package tourGuide;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +55,7 @@ public class TestPerformance {
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
 		InternalTestHelper.setInternalUserNumber(100);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
-		tourGuideService.tracker.stopTracking();
+		tourGuideService.locationTracker.stopTracking();
 
 		List<User> allUsers = tourGuideService.getAllUsers();
 
@@ -82,7 +81,7 @@ public class TestPerformance {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
-		tourGuideService.tracker.stopTracking();
+		tourGuideService.locationTracker.stopTracking();
 
 		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});

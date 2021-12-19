@@ -31,7 +31,7 @@ public class TestTourGuideService {
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(user.getUserId(), visitedLocation.getUserId());
     }
@@ -51,7 +51,7 @@ public class TestTourGuideService {
         User retrivedUser = tourGuideService.getUser(user.getUserName());
         User retrivedUser2 = tourGuideService.getUser(user2.getUserName());
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(user, retrivedUser);
         assertEquals(user2, retrivedUser2);
@@ -71,7 +71,7 @@ public class TestTourGuideService {
 
         List<User> allUsers = tourGuideService.getAllUsers();
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertTrue(allUsers.contains(user));
         assertTrue(allUsers.contains(user2));
@@ -85,7 +85,7 @@ public class TestTourGuideService {
 
         Map<String, Map<String, Double>> userLocation = tourGuideService.getAllUsersLocation();
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(5, userLocation.size());
     }
@@ -101,7 +101,7 @@ public class TestTourGuideService {
         VisitedLocation visitedLocation = user.getLastVisitedLocation();
 
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(user.getUserId(), visitedLocation.getUserId());
     }
@@ -113,7 +113,7 @@ public class TestTourGuideService {
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
         UserDto userDto = tourGuideService.getNearByAttractions(tourGuideService.getAllUsers().get(0).getUserName());
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(5, userDto.getAttractions().size());
     }
@@ -128,7 +128,7 @@ public class TestTourGuideService {
 
         List<Provider> providers = tourGuideService.getTripDeals(user);
 
-        tourGuideService.tracker.stopTracking();
+        tourGuideService.locationTracker.stopTracking();
 
         assertEquals(5, providers.size());
     }

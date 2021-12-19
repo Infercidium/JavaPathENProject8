@@ -33,6 +33,7 @@ import tourGuide.model.Attraction;
 import tourGuide.model.Location;
 import tourGuide.model.VisitedLocation;
 import tourGuide.tracker.LocationTracker;
+import tourGuide.tracker.RewardTracker;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
@@ -44,7 +45,8 @@ public class TourGuideService {
     private final RewardsService rewardsService;
     private final RewardCentral rewardCentral;
     private final TripPricer tripPricer = new TripPricer();
-    public final LocationTracker tracker;
+    public final LocationTracker locationTracker;
+    public final RewardTracker rewardTracker;
     boolean testMode = true;
     private ExecutorService executorTourGuideService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 
@@ -65,7 +67,8 @@ public class TourGuideService {
             initializeInternalUsers();
             logger.debug("Finished initializing users");
         }
-        tracker = new LocationTracker(this);
+        locationTracker = new LocationTracker(this);
+        rewardTracker = new RewardTracker(rewardsService, this);
         addShutDownHook();
         rewardCentral = new RewardCentral();
         System.out.println("gpsUtil = " + gpsUtilUrlBase);
@@ -158,7 +161,12 @@ public class TourGuideService {
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                tracker.stopTracking();
+                locationTracker.stopTracking();
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                rewardTracker.stopTracking();
             }
         });
     }
