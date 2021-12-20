@@ -5,9 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import gpsUtil.GpsUtil;
@@ -16,13 +13,7 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import rewardCentral.RewardCentral;
-import tourGuide.constant.ExecutorThreadParam;
-import tourGuide.controller.GpsUtilController;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -58,7 +49,7 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeTrackLocation() {
-		RewardsService rewardsService = new RewardsService(new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
 		InternalTestHelper.setInternalUserNumber(100);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
@@ -79,7 +70,7 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeGetRewards() {
-		RewardsService rewardsService = new RewardsService(new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 
 		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 

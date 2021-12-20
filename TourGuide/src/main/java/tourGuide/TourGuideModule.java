@@ -17,7 +17,7 @@ public class TourGuideModule {
 	
 	@Bean
 	public RewardsService getRewardsService() {
-		return new RewardsService(getRewardCentral());
+		return new RewardsService();
 	}
 	
 	@Bean

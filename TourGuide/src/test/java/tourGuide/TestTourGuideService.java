@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.junit.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;
-import rewardCentral.RewardCentral;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.VisitedLocation;
@@ -24,7 +23,7 @@ public class TestTourGuideService {
 
     @Test
     public void getUserLocation() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -38,7 +37,7 @@ public class TestTourGuideService {
 
     @Test
     public void addUser() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -59,7 +58,7 @@ public class TestTourGuideService {
 
     @Test
     public void getAllUsers() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -79,7 +78,7 @@ public class TestTourGuideService {
 
     @Test
     public void getAllUsersLocation() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(5);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -92,7 +91,7 @@ public class TestTourGuideService {
 
     @Test
     public void trackUser() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -108,7 +107,7 @@ public class TestTourGuideService {
 
     @Test
     public void getNearbyAttractions() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
@@ -120,7 +119,7 @@ public class TestTourGuideService {
 
     @Test
     public void getTripDeals() {
-        RewardsService rewardsService = new RewardsService(new RewardCentral());
+        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 

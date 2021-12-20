@@ -14,7 +14,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -30,7 +29,7 @@ public class TestRewardsService {
 
 	@Test
 	public void userGetRewards() {
-		RewardsService rewardsService = new RewardsService(new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
@@ -57,7 +56,7 @@ public class TestRewardsService {
 
 	@Test
 	public void isWithinAttractionProximity() {
-		RewardsService rewardsService = new RewardsService(new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 
 		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 
@@ -71,7 +70,7 @@ public class TestRewardsService {
 
 	@Test
 	public void nearAllAttractions() {
-		RewardsService rewardsService = new RewardsService(new RewardCentral());
+		RewardsService rewardsService = new RewardsService();
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
 		InternalTestHelper.setInternalUserNumber(1);

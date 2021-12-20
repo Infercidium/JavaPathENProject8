@@ -2,23 +2,27 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import gpsUtil.GpsUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import rewardCentral.RewardCentral;
 import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.constant.NearbyAttraction;
 import tourGuide.dto.AttractionDto;
@@ -38,20 +42,21 @@ import tripPricer.TripPricer;
 public class TourGuideService {
     private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
     private final RewardsService rewardsService;
-    private final RewardCentral rewardCentral;
     private final TripPricer tripPricer = new TripPricer();
     public final LocationTracker locationTracker;
     public final RewardTracker rewardTracker;
     boolean testMode = true;
     private ExecutorService executorTourGuideService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 
-    @Value("${rewardCentral.url}")
-    private String rewardUrlBase;
-
     @Value("${gpsUtil.url}")
     private String gpsUtilUrlBase = "http://localhost:8080";
 
     WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
+
+    @Value("${rewardCentral.url}")
+    private String rewardCentralUrlBase = "http://localhost:8080";
+
+    WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
 
     public TourGuideService(RewardsService rewardsService) {
         this.rewardsService = rewardsService;
@@ -65,7 +70,6 @@ public class TourGuideService {
         locationTracker = new LocationTracker(this);
         rewardTracker = new RewardTracker(this.rewardsService, this);
         addShutDownHook();
-        rewardCentral = new RewardCentral();
         System.out.println("gpsUtil = " + gpsUtilUrlBase);
     }
 
@@ -117,6 +121,9 @@ public class TourGuideService {
     public VisitedLocation trackUserLocation(User user) {
         Locale.setDefault(new Locale("en", "US"));
         GpsUtil gpsUtil = new GpsUtil();
+
+        System.out.println("Passage dans trackUserLocation");
+
         gpsUtil.location.VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
         VisitedLocation visitedLocation1 = new VisitedLocation();
         Location location = new Location();
@@ -127,11 +134,6 @@ public class TourGuideService {
         visitedLocation1.setUserId(visitedLocation.userId);
         user.addToVisitedLocations(visitedLocation1);
         return user.getLastVisitedLocation();
-    }
-
-    public void calculateReward(User user) {
-        rewardsService.calculateRewards(user);
-        rewardsService.calculateRewardsEnd();
     }
 
     public UserDto getNearByAttractions(String userName) {
@@ -160,14 +162,15 @@ public class TourGuideService {
         for (int i = 0; i < NearbyAttraction.NEARBY_ATTRACTION_NUMBER; i++) {
             AttractionDto attractionDto = new AttractionDto(attractionList.get(i));
             attractionDto.setDistance(rewardsService.getDistance(visitedLocation.getLocation(), attractionList.get(i)));
-            attractionDto.setRewardPoint(rewardCentral.getAttractionRewardPoints(attractionList.get(i).getAttractionId(), user.getUserId()));
+            attractionDto.setRewardPoint(rewardClient.get().uri("/RewardCentralPoint/{attractionId}/{userId}", attractionList.get(i).getAttractionId(), user.getUserId())
+                    .retrieve().bodyToMono(Integer.class).block());
             userDto.addAttractionDto(attractionDto);
         }
         return userDto;
     }
 
     public void GoToDisney(User user) {
-        Location location = new Location(33.817595D, -117.922008D);
+        Location location = new Location( -117.922008D, 33.817595D);
         VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), location, new Date());
         user.addToVisitedLocations(visitedLocation);
     }

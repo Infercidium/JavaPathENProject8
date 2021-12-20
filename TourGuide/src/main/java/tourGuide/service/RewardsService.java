@@ -1,14 +1,11 @@
 package tourGuide.service;
 
 import gpsUtil.GpsUtil;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import rewardCentral.RewardCentral;
 import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
@@ -32,16 +29,18 @@ public class RewardsService {
 
 	WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 
+	@Value("${rewardCentral.url}")
+	private String rewardCentralUrlBase = "http://localhost:8080";
+
+	WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
+
 	// proximity in miles
     private int defaultProximityBuffer = 10;
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
-	private final RewardCentral rewardCentral;
 	private ExecutorService executorRewardService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
 	
-	public RewardsService(RewardCentral rewardCentral) {
-		this.rewardCentral = rewardCentral;
-	}
+	public RewardsService() { }
 	
 	public void setProximityBuffer(int proximityBuffer) {
 		this.proximityBuffer = proximityBuffer;
@@ -54,6 +53,7 @@ public class RewardsService {
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		GpsUtil gpsUtil = new GpsUtil();
+		System.out.println("Passage dans calculateRewards");
 		//TODO Provisoire
 		List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
 		List<Attraction> attractionList = new ArrayList<>();
@@ -90,7 +90,7 @@ public class RewardsService {
 	}
 
 	private int getRewardPoints(Attraction attraction, User user) {
-		return rewardCentral.getAttractionRewardPoints(attraction.getAttractionId(), user.getUserId());
+		return rewardClient.get().uri("/RewardCentralPoint/{attractionId}/{userId}", attraction.getAttractionId(), user.getUserId()).retrieve().bodyToMono(Integer.class).block();
 	}
 
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
