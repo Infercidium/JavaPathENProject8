@@ -53,7 +53,7 @@ public class RewardsService {
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		GpsUtil gpsUtil = new GpsUtil();
-		System.out.println("Passage dans calculateRewards");
+
 		//TODO Provisoire
 		List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
 		List<Attraction> attractionList = new ArrayList<>();

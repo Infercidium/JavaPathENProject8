@@ -2,14 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -20,6 +13,7 @@ import gpsUtil.GpsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.reactive.function.client.WebClient;
@@ -122,7 +116,10 @@ public class TourGuideService {
         Locale.setDefault(new Locale("en", "US"));
         GpsUtil gpsUtil = new GpsUtil();
 
-        System.out.println("Passage dans trackUserLocation");
+        System.out.println("Bug possible ?"); //TODO VisitedLocation ne peux pas aller dans son equivalent mais fonctionne dans Object, utiliser un mapper ?
+        VisitedLocation visitedLocation2 = (VisitedLocation) gpsClient.get().uri("/userLocation/{userID}", user.getUserId()).accept(MediaType.APPLICATION_JSON).retrieve()
+                .bodyToMono(Object.class).block();
+        System.out.println("Test : " + visitedLocation2);
 
         gpsUtil.location.VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
         VisitedLocation visitedLocation1 = new VisitedLocation();
