@@ -1,19 +1,16 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.constant.ExecutorThreadParam;
+import tourGuide.get.GpsUtilGet;
+import tourGuide.get.RewardCentralGet;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
 import tourGuide.model.VisitedLocation;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,21 +21,14 @@ public class RewardsService {
 
     private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
 
-	@Value("${gpsUtil.url}")
-	private String gpsUtilUrlBase = "http://localhost:8080";
-
-	WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
-	@Value("${rewardCentral.url}")
-	private String rewardCentralUrlBase = "http://localhost:8080";
-
-	WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
-
 	// proximity in miles
     private int defaultProximityBuffer = 10;
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
+
 	private ExecutorService executorRewardService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
+	private RewardCentralGet rewardCentralGet = new RewardCentralGet();
+	private GpsUtilGet gpsUtilGet = new GpsUtilGet();
 	
 	public RewardsService() { }
 	
@@ -52,21 +42,8 @@ public class RewardsService {
 
 	public void calculateRewards(User user) {
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		GpsUtil gpsUtil = new GpsUtil();
 
-		//TODO Provisoire
-		List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
-		List<Attraction> attractionList = new ArrayList<>();
-		for (gpsUtil.location.Attraction attraction : attractions) {
-			Attraction attraction1 = new Attraction();
-			attraction1.setAttractionId(attraction.attractionId);
-			attraction1.setAttractionName(attraction.attractionName);
-			attraction1.setCity(attraction.city);
-			attraction1.setState(attraction.state);
-			attraction1.setLatitude(attraction.latitude);
-			attraction1.setLongitude(attraction.longitude);
-			attractionList.add(attraction1);
-		}
+		List<Attraction> attractionList = gpsUtilGet.attractionsList();
 
 		for(VisitedLocation visitedLocation : userLocations) {
 			for(Attraction attraction : attractionList) {
@@ -90,7 +67,7 @@ public class RewardsService {
 	}
 
 	private int getRewardPoints(Attraction attraction, User user) {
-		return rewardClient.get().uri("/RewardCentralPoint/{attractionId}/{userId}", attraction.getAttractionId(), user.getUserId()).retrieve().bodyToMono(Integer.class).block();
+		return rewardCentralGet.rewardPoint(attraction, user);
 	}
 
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {

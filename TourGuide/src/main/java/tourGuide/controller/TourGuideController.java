@@ -1,7 +1,5 @@
 package tourGuide.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,7 +10,6 @@ import com.jsoniter.output.JsonStream;
 import tourGuide.model.VisitedLocation;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
-import tripPricer.Provider;
 
 @RestController
 public class TourGuideController {
@@ -55,8 +52,7 @@ public class TourGuideController {
     
     @RequestMapping("/getTripDeals")
     public String getTripDeals(@RequestParam String userName) {
-    	List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
-    	return JsonStream.serialize(providers);
+    	return JsonStream.serialize(tourGuideService.getTripDeals(getUser(userName)));
     }
     
     private User getUser(String userName) {

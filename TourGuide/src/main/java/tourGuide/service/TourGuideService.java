@@ -2,25 +2,27 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import gpsUtil.GpsUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
-import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.constant.ExecutorThreadParam;
 import tourGuide.constant.NearbyAttraction;
 import tourGuide.dto.AttractionDto;
 import tourGuide.dto.UserDto;
+import tourGuide.get.GpsUtilGet;
+import tourGuide.get.RewardCentralGet;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
@@ -40,17 +42,10 @@ public class TourGuideService {
     public final LocationTracker locationTracker;
     public final RewardTracker rewardTracker;
     boolean testMode = true;
+
     private ExecutorService executorTourGuideService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
-
-    @Value("${gpsUtil.url}")
-    private String gpsUtilUrlBase = "http://localhost:8080";
-
-    WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
-    @Value("${rewardCentral.url}")
-    private String rewardCentralUrlBase = "http://localhost:8080";
-
-    WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
+    RewardCentralGet rewardCentralGet = new RewardCentralGet();
+    GpsUtilGet gpsUtilGet = new GpsUtilGet();
 
     public TourGuideService(RewardsService rewardsService) {
         this.rewardsService = rewardsService;
@@ -64,7 +59,6 @@ public class TourGuideService {
         locationTracker = new LocationTracker(this);
         rewardTracker = new RewardTracker(this.rewardsService, this);
         addShutDownHook();
-        System.out.println("gpsUtil = " + gpsUtilUrlBase);
     }
 
     public List<UserReward> getUserRewards(User user) {
@@ -113,24 +107,9 @@ public class TourGuideService {
     }
 
     public VisitedLocation trackUserLocation(User user) {
-        Locale.setDefault(new Locale("en", "US"));
-        GpsUtil gpsUtil = new GpsUtil();
-
-        System.out.println("Bug possible ?"); //TODO VisitedLocation ne peux pas aller dans son equivalent mais fonctionne dans Object, utiliser un mapper ?
-        VisitedLocation visitedLocation2 = (VisitedLocation) gpsClient.get().uri("/userLocation/{userID}", user.getUserId()).accept(MediaType.APPLICATION_JSON).retrieve()
-                .bodyToMono(Object.class).block();
-        System.out.println("Test : " + visitedLocation2);
-
-        gpsUtil.location.VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-        VisitedLocation visitedLocation1 = new VisitedLocation();
-        Location location = new Location();
-        location.setLatitude(visitedLocation.location.latitude);
-        location.setLongitude(visitedLocation.location.longitude);
-        visitedLocation1.setLocation(location);
-        visitedLocation1.setTimeVisited(visitedLocation.timeVisited);
-        visitedLocation1.setUserId(visitedLocation.userId);
-        user.addToVisitedLocations(visitedLocation1);
-        return user.getLastVisitedLocation();
+        VisitedLocation visitedLocation = gpsUtilGet.visitedLocation(user);
+        user.addToVisitedLocations(visitedLocation);
+        return visitedLocation;
     }
 
     public UserDto getNearByAttractions(String userName) {
@@ -138,29 +117,13 @@ public class TourGuideService {
         VisitedLocation visitedLocation = getUserLocation(user);
         UserDto userDto = new UserDto(user);
 
-        GpsUtil gpsUtil = new GpsUtil();
-        //TODO Provisoire
-        List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
-        List<Attraction> attractionList = new ArrayList<>();
-        for (gpsUtil.location.Attraction attraction : attractions) {
-            Attraction attraction1 = new Attraction();
-            attraction1.setAttractionId(attraction.attractionId);
-            attraction1.setAttractionName(attraction.attractionName);
-            attraction1.setCity(attraction.city);
-            attraction1.setState(attraction.state);
-            attraction1.setLatitude(attraction.latitude);
-            attraction1.setLongitude(attraction.longitude);
-            attractionList.add(attraction1);
-        }
+        List<Attraction> attractionList = gpsUtilGet.attractionsList().stream().sorted((a1, a2) -> (int)
+                (rewardsService.getDistance(a1, visitedLocation.getLocation()) - rewardsService.getDistance(a2, visitedLocation.getLocation()))).collect(Collectors.toList());
 
-        attractionList.stream().sorted((a1, a2)
-                        -> (int) (rewardsService.getDistance(a1, visitedLocation.getLocation()) - rewardsService.getDistance(a2, visitedLocation.getLocation())))
-                .collect(Collectors.toList());
         for (int i = 0; i < NearbyAttraction.NEARBY_ATTRACTION_NUMBER; i++) {
             AttractionDto attractionDto = new AttractionDto(attractionList.get(i));
             attractionDto.setDistance(rewardsService.getDistance(visitedLocation.getLocation(), attractionList.get(i)));
-            attractionDto.setRewardPoint(rewardClient.get().uri("/RewardCentralPoint/{attractionId}/{userId}", attractionList.get(i).getAttractionId(), user.getUserId())
-                    .retrieve().bodyToMono(Integer.class).block());
+            attractionDto.setRewardPoint(rewardCentralGet.rewardPoint(attractionList.get(i), user));
             userDto.addAttractionDto(attractionDto);
         }
         return userDto;
