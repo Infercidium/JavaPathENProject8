@@ -23,22 +23,21 @@ import tourGuide.dto.AttractionDto;
 import tourGuide.dto.UserDto;
 import tourGuide.get.GpsUtilGet;
 import tourGuide.get.RewardCentralGet;
+import tourGuide.get.TripPricerGet;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
+import tourGuide.model.Provider;
 import tourGuide.model.VisitedLocation;
 import tourGuide.tracker.LocationTracker;
 import tourGuide.tracker.RewardTracker;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
-import tripPricer.Provider;
-import tripPricer.TripPricer;
 
 @Service
 public class TourGuideService {
     private final Logger logger = LoggerFactory.getLogger(TourGuideService.class);
     private final RewardsService rewardsService;
-    private final TripPricer tripPricer = new TripPricer();
     public final LocationTracker locationTracker;
     public final RewardTracker rewardTracker;
     boolean testMode = true;
@@ -46,6 +45,7 @@ public class TourGuideService {
     private ExecutorService executorTourGuideService = Executors.newFixedThreadPool(ExecutorThreadParam.N_THREADS);
     RewardCentralGet rewardCentralGet = new RewardCentralGet();
     GpsUtilGet gpsUtilGet = new GpsUtilGet();
+    TripPricerGet tripPricerGet = new TripPricerGet();
 
     public TourGuideService(RewardsService rewardsService) {
         this.rewardsService = rewardsService;
@@ -99,8 +99,7 @@ public class TourGuideService {
 
     public List<Provider> getTripDeals(User user) {
         int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
-        List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(), user.getUserPreferences().getNumberOfAdults(),
-                user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+        List<Provider> providers = tripPricerGet.price(tripPricerApiKey, user, cumulatativeRewardPoints);
         user.setTripDeals(providers);
 
         return providers;

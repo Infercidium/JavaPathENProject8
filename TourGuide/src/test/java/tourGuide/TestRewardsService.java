@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import tourGuide.get.GpsUtilGet;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -24,8 +26,8 @@ import tourGuide.user.UserReward;
 
 @SpringBootTest
 public class TestRewardsService {
-	@Value("${gpsUtil.url}")
-	private String gpsUtilUrlBase = "http://localhost:8080";
+
+	GpsUtilGet gpsUtilGet = new GpsUtilGet();
 
 	@Test
 	public void userGetRewards() {
@@ -36,11 +38,7 @@ public class TestRewardsService {
 
 		User user = tourGuideService.getAllUsers().get(0);
 
-		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
-		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
-				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
-		List<Attraction> attractionList = attractionFlux.blockLast();
+		List<Attraction> attractionList = gpsUtilGet.attractionsList();
 		Attraction attraction = attractionList.get(0);
 
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
@@ -58,11 +56,7 @@ public class TestRewardsService {
 	public void isWithinAttractionProximity() {
 		RewardsService rewardsService = new RewardsService();
 
-		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
-		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
-				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
-		List<Attraction> attractionList = attractionFlux.blockLast();
+		List<Attraction> attractionList = gpsUtilGet.attractionsList();
 
 		Attraction attraction = attractionList.get(0);
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
@@ -77,11 +71,7 @@ public class TestRewardsService {
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
 		tourGuideService.locationTracker.stopTracking();
 
-		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
-		Flux<List<Attraction>> attractionFlux = gpsClient.get().uri("/attractions").accept(MediaType.APPLICATION_JSON).retrieve()
-				.bodyToFlux(new ParameterizedTypeReference<List<Attraction>>() {});
-		List<Attraction> attractionList = attractionFlux.blockLast();
+		List<Attraction> attractionList = gpsUtilGet.attractionsList();
 
 		tourGuideService.trackUserLocation(tourGuideService.getAllUsers().get(0));
 

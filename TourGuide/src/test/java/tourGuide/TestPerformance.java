@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
+import tourGuide.get.GpsUtilGet;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -23,9 +24,6 @@ import tourGuide.user.User;
 
 @SpringBootTest
 public class TestPerformance {
-
-	@Value("${gpsUtil.url}")
-	private String gpsUtilUrlBase = "http://localhost:8080";
 
 	/*
 	 * A note on performance improvements:
@@ -72,8 +70,6 @@ public class TestPerformance {
 	public void highVolumeGetRewards() {
 		RewardsService rewardsService = new RewardsService();
 
-		WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
-
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
 		InternalTestHelper.setInternalUserNumber(10);
 		StopWatch stopWatch = new StopWatch();
@@ -81,21 +77,9 @@ public class TestPerformance {
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
 		tourGuideService.locationTracker.stopTracking();
 		tourGuideService.rewardTracker.stopTracking();
+		GpsUtilGet gpsUtilGet = new GpsUtilGet();
 
-		GpsUtil gpsUtil = new GpsUtil();
-		//TODO Provisoire
-		List<gpsUtil.location.Attraction> attractions = gpsUtil.getAttractions();
-		List<Attraction> attractionList = new ArrayList<>();
-		for (gpsUtil.location.Attraction attraction : attractions) {
-			Attraction attraction1 = new Attraction();
-			attraction1.setAttractionId(attraction.attractionId);
-			attraction1.setAttractionName(attraction.attractionName);
-			attraction1.setCity(attraction.city);
-			attraction1.setState(attraction.state);
-			attraction1.setLatitude(attraction.latitude);
-			attraction1.setLongitude(attraction.longitude);
-			attractionList.add(attraction1);
-		}
+		List<Attraction> attractionList = gpsUtilGet.attractionsList();
 
 	    Attraction attraction = attractionList.get(0);
 

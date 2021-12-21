@@ -7,19 +7,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import gpsUtil.GpsUtil;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
+import tourGuide.model.Provider;
 import tourGuide.model.VisitedLocation;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
-import tripPricer.Provider;
 
 @SpringBootTest
 public class TestTourGuideService {
+
+    @BeforeClass
+    public static void beforeclass() {
+
+    }
+
 
     @Test
     public void getUserLocation() {
@@ -96,9 +105,7 @@ public class TestTourGuideService {
         TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
         User user = tourGuideService.getAllUsers().get(0);
-        /*VisitedLocation visitedLocation =*/ tourGuideService.trackUserLocation(user);
-        VisitedLocation visitedLocation = user.getLastVisitedLocation();
-
+        VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
         tourGuideService.locationTracker.stopTracking();
 
