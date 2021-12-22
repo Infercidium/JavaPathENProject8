@@ -7,7 +7,7 @@ import tourGuide.user.User;
 
 public class RewardCentralGet {
 
-    @Value("${rewardCentral.url}") //TODO Faire fonnctionner correctement
+    @Value("${rewardCentral.url}")
     private String rewardCentralUrlBase = "http://localhost:8080";
 
     WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();

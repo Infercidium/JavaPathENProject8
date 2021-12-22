@@ -49,7 +49,7 @@ public class TestPerformance {
 	public void highVolumeTrackLocation() {
 		RewardsService rewardsService = new RewardsService();
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		InternalTestHelper.setInternalUserNumber(100);
+		InternalTestHelper.setInternalUserNumber(10);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
 		tourGuideService.locationTracker.stopTracking();
 

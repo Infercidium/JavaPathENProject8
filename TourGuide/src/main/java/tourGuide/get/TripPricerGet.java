@@ -8,10 +8,10 @@ import tourGuide.user.User;
 import java.util.List;
 
 public class TripPricerGet {
-    @Value("${tripPricer.url}") //TODO Faire fonctionner correctement
-    private String rewardCentralUrlBase = "http://localhost:8080";
+    @Value("${tripPricer.url}")
+    private String tripPricerUrlBase = "http://localhost:8080";
 
-    WebClient pricerClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
+    WebClient pricerClient = WebClient.builder().baseUrl(tripPricerUrlBase).build();
 
     public TripPricerGet() { }
 
