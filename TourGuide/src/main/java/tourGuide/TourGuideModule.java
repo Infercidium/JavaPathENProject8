@@ -12,28 +12,26 @@ import tripPricer.TripPricer;
 
 @Configuration
 public class TourGuideModule {
-	@Value("${gpsUtil.url}")
-	private String gpsUtilUrlBase;
 
+	@Value("${gpsUtil.url}")
+	public String gpsUtilUrlBase;
 	@Bean
-	WebClient gpsClient() {
-		return WebClient.builder().baseUrl(gpsUtilUrlBase).build();
+	public WebClient gpsClient() {
+		return WebClient.create(gpsUtilUrlBase);
 	}
 
 	@Value("${rewardCentral.url}")
-	private String rewardCentralUrlBase;
-
+	public String rewardCentralUrlBase;
 	@Bean
-	WebClient rewardClient() {
-		return WebClient.builder().baseUrl(rewardCentralUrlBase).build();
+	public WebClient rewardClient() {
+		return WebClient.create(rewardCentralUrlBase);
 	}
 
 	@Value("${tripPricer.url}")
-	private String tripPricerUrlBase;
-
+	public String tripPricerUrlBase;
 	@Bean
-	WebClient pricerClient() {
-		return WebClient.builder().baseUrl(tripPricerUrlBase).build();
+	public WebClient pricerClient() {
+		return WebClient.create(tripPricerUrlBase);
 	}
 
 	@Bean

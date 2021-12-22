@@ -42,7 +42,7 @@ public class UserDto {
     }
 
     public List<AttractionDto> getAttractions() {
-        return attractions;
+        return new ArrayList<>(attractions);
     }
 
     public void setAttractions(List<AttractionDto> attractions) {

@@ -1,19 +1,24 @@
-package tourGuide.get;
+package tourGuide.proxy;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.model.Provider;
 import tourGuide.user.User;
 
 import java.util.List;
 
-public class TripPricerGet {
+@Component
+public class TripPricerProxy {
+
     @Value("${tripPricer.url}")
-    private String tripPricerUrlBase = "http://localhost:8080";
+    private String tripPricerUrlBase;
 
-    WebClient pricerClient = WebClient.builder().baseUrl(tripPricerUrlBase).build();
+    @Autowired
+    WebClient pricerClient;
 
-    public TripPricerGet() { }
+    public TripPricerProxy() { }
 
     public List<Provider> price(String apiKey, User user, int rewardsPoints) {
         return pricerClient.get()

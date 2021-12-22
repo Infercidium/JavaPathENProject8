@@ -1,18 +1,22 @@
-package tourGuide.get;
+package tourGuide.proxy;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.model.Attraction;
 import tourGuide.user.User;
 
-public class RewardCentralGet {
+@Component
+public class RewardCentralProxy {
 
     @Value("${rewardCentral.url}")
-    private String rewardCentralUrlBase = "http://localhost:8080";
+    private String rewardCentralUrlBase;
 
-    WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
+    @Autowired
+    WebClient rewardClient;
 
-    public RewardCentralGet() { }
+    public RewardCentralProxy() { }
 
     public int rewardPoint(Attraction attraction, User user) {
         return rewardClient.get().uri("/RewardCentralPoint/{attractionId}/{userId}", attraction.getAttractionId(), user.getUserId()).retrieve().bodyToMono(Integer.class).block();
