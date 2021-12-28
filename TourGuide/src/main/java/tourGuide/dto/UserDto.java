@@ -49,6 +49,10 @@ public class UserDto {
         this.attractions = attractions;
     }
 
+    /**
+     * Add an attraction to the list.
+     * @param attractionDto to add.
+     */
     public void addAttractionDto(AttractionDto attractionDto) {
         attractions.add(attractionDto);
     }

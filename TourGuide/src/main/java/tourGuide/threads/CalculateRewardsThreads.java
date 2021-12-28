@@ -13,6 +13,9 @@ public class CalculateRewardsThreads implements Runnable {
         this.rewardsService = rewardsService;
     }
 
+    /**
+     * Starts a new Thread executing the calculateRewards method with the "User" parameter.
+     */
     @Override
     public void run() {
         rewardsService.calculateRewards(user);

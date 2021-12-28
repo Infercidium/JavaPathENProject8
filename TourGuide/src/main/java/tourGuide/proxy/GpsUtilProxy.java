@@ -8,17 +8,18 @@ import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
 import tourGuide.user.User;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * Uses gpsUtil Controller.
+ */
 @Component
 public class GpsUtilProxy {
 
-    @Value(value = "${gpsUtil.url}")
-    private String gpsUtilUrlBase;
+    @Value("${gpsUtil.url}")
+    public String gpsUtilUrlBase = "http://localhost:8080";
 
-    @Autowired
-    WebClient gpsClient;
+    WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
 
     public GpsUtilProxy() { }
 

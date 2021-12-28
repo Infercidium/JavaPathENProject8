@@ -10,6 +10,9 @@ import rewardCentral.RewardCentral;
 import tourGuide.service.RewardsService;
 import tripPricer.TripPricer;
 
+/**
+ * Configuration Class.
+ */
 @Configuration
 public class TourGuideModule {
 

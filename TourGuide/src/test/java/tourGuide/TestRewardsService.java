@@ -50,16 +50,6 @@ public class TestRewardsService {
 	}
 
 	@Test
-	public void isWithinAttractionProximity() {
-		RewardsService rewardsService = new RewardsService();
-
-		List<Attraction> attractionList = gpsUtilProxy.attractionsList();
-
-		Attraction attraction = attractionList.get(0);
-		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
-	}
-
-	@Test
 	public void nearAllAttractions() {
 		RewardsService rewardsService = new RewardsService();
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);

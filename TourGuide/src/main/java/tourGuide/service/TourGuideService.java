@@ -57,24 +57,47 @@ public class TourGuideService {
         addShutDownHook();
     }
 
+    /**
+     * Provides the reward list of the selected user.
+     * @param user selected.
+     * @return list of reward.
+     */
     public List<UserReward> getUserRewards(User user) {
         return user.getUserRewards();
     }
 
+    /**
+     * Provides the location of the selected user.
+     * @param user selected.
+     * @return location.
+     */
     public VisitedLocation getUserLocation(User user) {
         return (user.getVisitedLocations().size() > 0) ?
                 user.getLastVisitedLocation() :
                 null;
     }
 
+    /**
+     * Retrieves the user corresponding to the username.
+     * @param userName of user.
+     * @return user.
+     */
     public User getUser(String userName) {
         return internalUserMap.get(userName);
     }
 
+    /**
+     * Retrieves the list of internalUsermap users.
+     * @return list of user.
+     */
     public List<User> getAllUsers() {
         return internalUserMap.values().stream().collect(Collectors.toList());
     }
 
+    /**
+     * Makes a map containing the list of users and their coordinates.
+     * @return map.
+     */
     public Map<String, Map<String, Double>> getAllUsersLocation() {
         Map<String, Map<String, Double>> usersLocation = new HashMap<>();
         for (User currentUser : getAllUsers()) {
@@ -86,12 +109,21 @@ public class TourGuideService {
         return usersLocation;
     }
 
+    /**
+     * Add a user to the list.
+     * @param user to add.
+     */
     public void addUser(User user) {
         if (!internalUserMap.containsKey(user.getUserName())) {
             internalUserMap.put(user.getUserName(), user);
         }
     }
 
+    /**
+     * Call on tripPricer to get 5 TripDeal based on reward points.
+     * @param user : reward Point
+     * @return the list of Provider obtained.
+     */
     public List<Provider> getTripDeals(User user) {
         int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
         List<Provider> providers = tripPricerProxy.price(tripPricerApiKey, user, cumulatativeRewardPoints);
@@ -100,6 +132,10 @@ public class TourGuideService {
         return providers;
     }
 
+    /**
+     * Get the user's position and add it, the user is synchronized so that the two methods do not interfere.
+     * @param user to verify.
+     */
     public void trackUserLocation(User user) {
         synchronized (user) {
             VisitedLocation visitedLocation = gpsUtilProxy.visitedLocation(user);
@@ -107,6 +143,11 @@ public class TourGuideService {
         }
     }
 
+    /**
+     * Create a dto containing the 5 attractions closest to the user. (the 5 can be modified in the constants : NEARBY_ATTRACTION_NUMBER).
+     * @param userName of the user.
+     * @return a dto containing the 5 attractions closest to the user.
+     */
     public UserDto getNearByAttractions(String userName) {
         User user = getUser(userName);
         VisitedLocation visitedLocation = getUserLocation(user);
@@ -124,12 +165,19 @@ public class TourGuideService {
         return userDto;
     }
 
+    /**
+     * Move the selected user to the Disneyland coordinate, use during test.
+     * @param user selected.
+     */
     public void GoToDisney(User user) {
         Location location = new Location( -117.922008D, 33.817595D);
         VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), location, new Date());
         user.addToVisitedLocations(visitedLocation);
     }
 
+    /**
+     * Turn off Trackers when closing the application.
+     */
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {

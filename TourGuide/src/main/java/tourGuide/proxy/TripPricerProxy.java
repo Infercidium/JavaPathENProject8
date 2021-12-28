@@ -9,14 +9,16 @@ import tourGuide.user.User;
 
 import java.util.List;
 
+/**
+ * Uses TripPricer Controller.
+ */
 @Component
 public class TripPricerProxy {
 
     @Value("${tripPricer.url}")
-    private String tripPricerUrlBase;
+    public String tripPricerUrlBase = "http://localhost:8080";
 
-    @Autowired
-    WebClient pricerClient;
+    WebClient pricerClient = WebClient.builder().baseUrl(tripPricerUrlBase).build();
 
     public TripPricerProxy() { }
 

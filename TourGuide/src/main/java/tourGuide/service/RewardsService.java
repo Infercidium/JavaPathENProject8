@@ -23,7 +23,7 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
 
-	private RewardCentralProxy rewardCentralProxy = new RewardCentralProxy();
+	private final RewardCentralProxy rewardCentralProxy = new RewardCentralProxy();
 
 	@Autowired
 	private GpsUtilProxy gpsUtilProxy;
@@ -38,6 +38,10 @@ public class RewardsService {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
+	/**
+	 * Compare the user's locations and attractions, the user is synchronized so that the two methods do not interfere.
+	 * @param user to verify.
+	 */
 	public void calculateRewards(User user) {
 		synchronized (user) {
 			List<VisitedLocation> userLocations = user.getVisitedLocations();
@@ -56,18 +60,32 @@ public class RewardsService {
 		}
 	}
 
+	/**
+	 * Make a call to rewardCentral.
+	 * @param attraction ID.
+	 * @param user ID.
+	 * @return the number of reward points offered by RewardCentral.
+	 */
 	private int getRewardPoints(Attraction attraction, User user) {
 		return rewardCentralProxy.rewardPoint(attraction, user);
 	}
 
+	/**
+	 * Compare two distances.
+	 * @param visitedLocation : location of the user.
+	 * @param attraction : location of the attraction.
+	 * @return true if distance is less than the limit otherwise returns false.
+	 */
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
 		return getDistance(attraction, visitedLocation.getLocation()) > proximityBuffer ? false : true;
 	}
 
-	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		return getDistance(attraction, location) > attractionProximityRange ? false : true;
-	}
-	
+	/**
+	 * Compare two locations.
+	 * @param loc1 : location 1.
+	 * @param loc2 : location 2.
+	 * @return the distance in miles between the two locations.
+	 */
 	public double getDistance(Location loc1, Location loc2) {
         double lat1 = Math.toRadians(loc1.getLatitude());
         double lon1 = Math.toRadians(loc1.getLongitude());
@@ -78,7 +96,6 @@ public class RewardsService {
                                + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));
 
         double nauticalMiles = 60 * Math.toDegrees(angle);
-        double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
-        return statuteMiles;
+		return STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
 	}
 }

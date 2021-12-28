@@ -7,14 +7,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import tourGuide.model.Attraction;
 import tourGuide.user.User;
 
+/**
+ * Uses RewardCentral Controller.
+ */
 @Component
 public class RewardCentralProxy {
 
     @Value("${rewardCentral.url}")
-    private String rewardCentralUrlBase;
+    public String rewardCentralUrlBase = "http://localhost:8080";
 
-    @Autowired
-    WebClient rewardClient;
+    WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
 
     public RewardCentralProxy() { }
 

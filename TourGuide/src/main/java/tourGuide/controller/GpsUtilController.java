@@ -18,8 +18,9 @@ public class GpsUtilController {
     private GpsUtil gpsUtil;
 
     @GetMapping("/userLocation/{userID}")
-    public VisitedLocation getUserLocation(@PathVariable UUID userID) {
-        return gpsUtil.getUserLocation(userID);
+    public VisitedLocation getUserLocation(@PathVariable String userID) {
+        UUID uuid = UUID.fromString(userID);
+        return gpsUtil.getUserLocation(uuid);
     }
 
 

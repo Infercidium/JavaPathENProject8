@@ -13,6 +13,9 @@ public class TrackUserLocationThreads implements Runnable {
         this.tourGuideService = tourGuideService;
     }
 
+    /**
+     * Starts a new Thread executing the trackUserLocation method with the "User" parameter.
+     */
     @Override
     public void run() {
         tourGuideService.trackUserLocation(user);
