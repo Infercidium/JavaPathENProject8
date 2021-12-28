@@ -2,6 +2,9 @@ package tourGuide.model;
 
 import java.util.UUID;
 
+/**
+ * Model of gpsUtil.
+ */
 public class Attraction extends Location {
     private String attractionName;
     private String city;

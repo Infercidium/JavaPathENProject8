@@ -2,6 +2,9 @@ package tourGuide.model;
 
 import java.util.UUID;
 
+/**
+ * Model of tripPricer.
+ */
 public class Provider {
     private String name;
     private double price;

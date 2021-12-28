@@ -1,5 +1,8 @@
 package tourGuide.model;
 
+/**
+ * Model of gpsUtil.
+ */
 public class Location {
     private double longitude;
     private double latitude;
