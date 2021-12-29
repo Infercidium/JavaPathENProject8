@@ -16,7 +16,7 @@ import java.util.List;
 public class TripPricerProxy {
 
     @Value("${tripPricer.url}")
-    public String tripPricerUrlBase = "http://localhost:8080";
+    public String tripPricerUrlBase = "http://localhost:8083";
 
     WebClient pricerClient = WebClient.builder().baseUrl(tripPricerUrlBase).build();
 
