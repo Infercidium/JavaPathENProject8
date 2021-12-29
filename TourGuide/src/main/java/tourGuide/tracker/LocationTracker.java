@@ -40,11 +40,7 @@ public class LocationTracker extends Thread {
 	@Override
 	public void run() {
 		StopWatch stopWatch = new StopWatch();
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+
 		while(true) {
 			if(Thread.currentThread().isInterrupted() || stop) {
 				LOGGER.debug("Tracker stopping");

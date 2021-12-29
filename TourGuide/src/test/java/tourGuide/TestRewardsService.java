@@ -22,8 +22,7 @@ import tourGuide.user.UserReward;
 @SpringBootTest
 public class TestRewardsService {
 
-	@Autowired
-	GpsUtilProxy gpsUtilProxy;
+	private GpsUtilProxy gpsUtilProxy = new GpsUtilProxy();
 
 	@Test
 	public void userGetRewards() {
