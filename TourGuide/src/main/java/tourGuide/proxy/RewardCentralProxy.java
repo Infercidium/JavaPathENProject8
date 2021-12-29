@@ -14,7 +14,7 @@ import tourGuide.user.User;
 public class RewardCentralProxy {
 
     @Value("${rewardCentral.url}")
-    public String rewardCentralUrlBase = "http://localhost:8080";
+    public String rewardCentralUrlBase = "http://localhost:8082";
 
     WebClient rewardClient = WebClient.builder().baseUrl(rewardCentralUrlBase).build();
 
