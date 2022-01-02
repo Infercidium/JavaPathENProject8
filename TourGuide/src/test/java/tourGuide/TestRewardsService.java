@@ -1,14 +1,12 @@
 package tourGuide;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import tourGuide.proxy.GpsUtilProxy;
 import tourGuide.helper.InternalTestHelper;
@@ -43,7 +41,7 @@ public class TestRewardsService {
 
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.locationTracker.stopTracking();
-
+		tourGuideService.rewardTracker.stopTracking();
 
 		assertEquals(1, userRewards.size());
 	}
@@ -56,6 +54,7 @@ public class TestRewardsService {
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(rewardsService);
 		tourGuideService.locationTracker.stopTracking();
+		tourGuideService.rewardTracker.stopTracking();
 
 		List<Attraction> attractionList = gpsUtilProxy.attractionsList();
 

@@ -33,9 +33,4 @@ public class TourGuideModule {
 	public WebClient pricerClient() {
 		return WebClient.create(tripPricerUrlBase);
 	}
-
-	@Bean
-	public RewardsService getRewardsService() {
-		return new RewardsService();
-	}
 }

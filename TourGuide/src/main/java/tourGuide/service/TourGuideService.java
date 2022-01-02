@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tourGuide.constant.NearbyAttraction;
@@ -39,9 +40,14 @@ public class TourGuideService {
     public final RewardTracker rewardTracker;
     boolean testMode = true;
 
-    RewardCentralProxy rewardCentralProxy = new RewardCentralProxy();
-    GpsUtilProxy gpsUtilProxy = new GpsUtilProxy();
-    TripPricerProxy tripPricerProxy = new TripPricerProxy();
+    @Autowired
+    private RewardCentralProxy rewardCentralProxy;
+
+    @Autowired
+    private GpsUtilProxy gpsUtilProxy;
+
+    @Autowired
+    private TripPricerProxy tripPricerProxy;
 
     public TourGuideService(RewardsService rewardsService) {
         this.rewardsService = rewardsService;
