@@ -12,7 +12,7 @@ services:
       - "8080:8080"
     networks:
       tourguide_net:
-        - ipv4_address: 172.40.1.1
+        - ipv4_address: 172.40.1.5
 
   tourguide_gpsutil:
     container_name: gpsutil
