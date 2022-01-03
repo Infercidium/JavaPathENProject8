@@ -1,0 +1,48 @@
+version: "3.3"
+
+services:
+  tourguide_principal:
+    container_name: principal
+    depends_on:
+      - tourguide_gpsutil
+      - tourguide_rewardcentral
+      - tourguide_trippricer
+    build: TourGuide/.
+    ports:
+      - "8080:8080"
+    networks:
+      tourguide_net:
+        - ipv4_address: 172.40.1.5
+
+  tourguide_gpsutil:
+    container_name: gpsutil
+    build: TourGuide_GpsUtil/.
+    ports:
+      - "8081:8081"
+    networks:
+      tourguide_net:
+        - ipv4_address: 172.40.1.2
+
+  tourguide_rewardcentral:
+    container_name: rewardcentral
+    build: TourGuide_RewardCentral/.
+    ports:
+      - "8082:8082"
+    networks:
+      tourguide_net:
+        - ipv4_address: 172.40.1.3
+
+  tourguide_trippricer:
+    container_name: trippricer
+    build: TourGuide_TripPricer/.
+    ports:
+      - "8083:8083"
+    networks:
+      tourguide_net:
+        - ipv4_address: 172.40.1.4
+
+networks:
+  tourguide_net:
+    ipam:
+      config:
+        - subnet: 172.40.1.0/7

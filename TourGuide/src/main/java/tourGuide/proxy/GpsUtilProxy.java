@@ -17,9 +17,10 @@ import java.util.List;
 public class GpsUtilProxy {
 
     @Value("${gpsUtil.url}")
-    public String gpsUtilUrlBase = "http://localhost:8081";
+    public String gpsUtilUrlBase;
 
-    WebClient gpsClient = WebClient.builder().baseUrl(gpsUtilUrlBase).build();
+    @Autowired
+    private WebClient gpsClient;
 
     public GpsUtilProxy() { }
 

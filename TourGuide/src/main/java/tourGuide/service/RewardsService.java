@@ -1,5 +1,6 @@
 package tourGuide.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tourGuide.proxy.GpsUtilProxy;
@@ -22,8 +23,11 @@ public class RewardsService {
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
 
-	private final RewardCentralProxy rewardCentralProxy = new RewardCentralProxy();
-	private final GpsUtilProxy gpsUtilProxy = new GpsUtilProxy();
+	@Autowired
+	private RewardCentralProxy rewardCentralProxy;
+
+	@Autowired
+	private GpsUtilProxy gpsUtilProxy;
 	
 	public RewardsService() { }
 	

@@ -75,6 +75,7 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeGetRewards() {
+
 		RewardsService rewardsService = new RewardsService();
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
@@ -101,6 +102,7 @@ public class TestPerformance {
 
 		executorRewardService.shutdown();
 		tourGuideService.locationTracker.stopTracking();
+
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);
 		}
