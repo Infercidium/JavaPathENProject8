@@ -126,6 +126,16 @@ public class TourGuideService {
     }
 
     /**
+     * Reset internalUserMap for test.
+     */
+    public void resetMap() {
+        if (internalUserMap.size() > 0) {
+            internalUserMap.clear();
+        }
+        initializeInternalUsers();
+    }
+
+    /**
      * Call on tripPricer to get 5 TripDeal based on reward points.
      * @param user : reward Point
      * @return the list of Provider obtained.
