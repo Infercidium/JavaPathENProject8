@@ -80,6 +80,11 @@ public class TestPerformance {
 		}
 
 		executorLocationService.shutdown();
+		try {
+			executorLocationService.awaitTermination(15, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tourGuideService.rewardTracker.stopTracking();
 		stopWatch.stop();
 
@@ -89,7 +94,6 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeGetRewards() {
-
 
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
