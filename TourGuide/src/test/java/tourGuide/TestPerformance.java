@@ -11,7 +11,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.constant.TrackerParam;
 import tourGuide.proxy.GpsUtilProxy;
 import tourGuide.helper.InternalTestHelper;
@@ -24,6 +27,7 @@ import tourGuide.threads.TrackUserLocationThreads;
 import tourGuide.user.User;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 public class TestPerformance {
 
 	/*
@@ -45,13 +49,23 @@ public class TestPerformance {
      *     highVolumeGetRewards: 100,000 users within 20 minutes:
 	 *          assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	 */
+	@Autowired
+	RewardsService rewardsService;
+
+	@Autowired
+	TourGuideService tourGuideService;
+
+	@Autowired
+	GpsUtilProxy gpsUtilProxy;
 
 	@Test
 	public void highVolumeTrackLocation() {
-		RewardsService rewardsService = new RewardsService();
+
+
+
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
 		InternalTestHelper.setInternalUserNumber(100000);
-		TourGuideService tourGuideService = new TourGuideService(rewardsService);
+
 		tourGuideService.locationTracker.stopTracking();
 		ExecutorService executorLocationService = Executors.newFixedThreadPool(TrackerParam.N_THREADS);
 
@@ -66,6 +80,11 @@ public class TestPerformance {
 		}
 
 		executorLocationService.shutdown();
+		try {
+			executorLocationService.awaitTermination(15, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tourGuideService.rewardTracker.stopTracking();
 		stopWatch.stop();
 
@@ -76,17 +95,14 @@ public class TestPerformance {
 	@Test
 	public void highVolumeGetRewards() {
 
-		RewardsService rewardsService = new RewardsService();
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
 		InternalTestHelper.setInternalUserNumber(100000);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		TourGuideService tourGuideService = new TourGuideService(rewardsService);
+
 		tourGuideService.rewardTracker.stopTracking();
 		ExecutorService executorRewardService = Executors.newFixedThreadPool(TrackerParam.N_THREADS);
-
-		GpsUtilProxy gpsUtilProxy = new GpsUtilProxy();
 
 		List<Attraction> attractionList = gpsUtilProxy.attractionsList();
 
@@ -101,6 +117,11 @@ public class TestPerformance {
 		}
 
 		executorRewardService.shutdown();
+		try {
+			executorRewardService.awaitTermination(20, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tourGuideService.locationTracker.stopTracking();
 
 		for(User user : allUsers) {
