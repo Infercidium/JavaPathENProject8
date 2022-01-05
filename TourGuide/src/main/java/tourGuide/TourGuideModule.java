@@ -17,6 +17,7 @@ public class TourGuideModule {
 	public String gpsUtilUrlBase;
 	@Bean
 	public WebClient gpsClient() {
+		System.out.println("gpsutil bean : " + gpsUtilUrlBase);
 		return WebClient.create(gpsUtilUrlBase);
 	}
 

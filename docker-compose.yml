@@ -10,9 +10,13 @@ services:
     build: TourGuide/.
     ports:
       - "8080:8080"
+    environment:
+      - GPSUTIL_URL=http://gpsutil:8081
+      - REWARDCENTRAL_URL=http://rewardcentral:8082
+      - TRIPPRICER_URL=http://trippricer:8083
     networks:
       tourguide_net:
-        - ipv4_address: 172.40.1.5
+        ipv4_address: 172.40.1.5
 
   tourguide_gpsutil:
     container_name: gpsutil
@@ -21,7 +25,7 @@ services:
       - "8081:8081"
     networks:
       tourguide_net:
-        - ipv4_address: 172.40.1.2
+        ipv4_address: 172.40.1.2
 
   tourguide_rewardcentral:
     container_name: rewardcentral
@@ -30,7 +34,7 @@ services:
       - "8082:8082"
     networks:
       tourguide_net:
-        - ipv4_address: 172.40.1.3
+        ipv4_address: 172.40.1.3
 
   tourguide_trippricer:
     container_name: trippricer
@@ -39,10 +43,10 @@ services:
       - "8083:8083"
     networks:
       tourguide_net:
-        - ipv4_address: 172.40.1.4
+        ipv4_address: 172.40.1.4
 
 networks:
   tourguide_net:
     ipam:
       config:
-        - subnet: 172.40.1.0/7
+        - subnet: 172.40.1.0/14
