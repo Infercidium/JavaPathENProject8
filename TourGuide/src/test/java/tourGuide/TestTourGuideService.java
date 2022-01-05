@@ -9,7 +9,10 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Provider;
@@ -19,13 +22,19 @@ import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 public class TestTourGuideService {
+
+    @Autowired
+    RewardsService rewardsService;
+
+    @Autowired
+    TourGuideService tourGuideService;
 
     @Test
     public void getUserLocation() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = user.getLastVisitedLocation();
@@ -38,9 +47,8 @@ public class TestTourGuideService {
 
     @Test
     public void addUser() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
@@ -60,30 +68,28 @@ public class TestTourGuideService {
 
     @Test
     public void getAllUsers() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
-        User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-        User user2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
+        User userall1 = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+        User userall2 = new User(UUID.randomUUID(), "jon2", "000", "jon2@tourGuide.com");
 
-        tourGuideService.addUser(user);
-        tourGuideService.addUser(user2);
+        tourGuideService.addUser(userall1);
+        tourGuideService.addUser(userall2);
 
         List<User> allUsers = tourGuideService.getAllUsers();
 
         tourGuideService.locationTracker.stopTracking();
         tourGuideService.rewardTracker.stopTracking();
 
-        assertTrue(allUsers.contains(user));
-        assertTrue(allUsers.contains(user2));
+        assertTrue(allUsers.contains(userall1));
+        assertTrue(allUsers.contains(userall2));
     }
 
     @Test
     public void getAllUsersLocation() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(5);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
         Map<String, Map<String, Double>> userLocation = tourGuideService.getAllUsersLocation();
 
@@ -95,9 +101,8 @@ public class TestTourGuideService {
 
     @Test
     public void trackUser() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
         User user = tourGuideService.getAllUsers().get(0);
         VisitedLocation visitedLocation = user.getLastVisitedLocation();
@@ -110,9 +115,8 @@ public class TestTourGuideService {
 
     @Test
     public void getNearbyAttractions() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(1);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
+        tourGuideService.resetMap();
 
         UserDto userDto = tourGuideService.getNearByAttractions(tourGuideService.getAllUsers().get(0).getUserName());
 
@@ -124,9 +128,7 @@ public class TestTourGuideService {
 
     @Test
     public void getTripDeals() {
-        RewardsService rewardsService = new RewardsService();
         InternalTestHelper.setInternalUserNumber(0);
-        TourGuideService tourGuideService = new TourGuideService(rewardsService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 

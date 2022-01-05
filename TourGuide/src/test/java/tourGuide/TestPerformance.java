@@ -58,13 +58,16 @@ public class TestPerformance {
 	@Autowired
 	GpsUtilProxy gpsUtilProxy;
 
+	private final int usersNumbers = 100000;
+
 	@Test
 	public void highVolumeTrackLocation() {
 
 
 
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		InternalTestHelper.setInternalUserNumber(100000);
+		InternalTestHelper.setInternalUserNumber(usersNumbers);
+		tourGuideService.resetMap();
 
 		tourGuideService.locationTracker.stopTracking();
 		ExecutorService executorLocationService = Executors.newFixedThreadPool(TrackerParam.N_THREADS);
@@ -97,7 +100,9 @@ public class TestPerformance {
 
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(100000);
+		InternalTestHelper.setInternalUserNumber(usersNumbers);
+		tourGuideService.resetMap();
+
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 

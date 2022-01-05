@@ -7,7 +7,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.proxy.GpsUtilProxy;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
@@ -18,16 +21,22 @@ import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 public class TestRewardsService {
 
-	private GpsUtilProxy gpsUtilProxy = new GpsUtilProxy();
+	@Autowired
+	RewardsService rewardsService;
+
+	@Autowired
+	TourGuideService tourGuideService;
+
+	@Autowired
+	GpsUtilProxy gpsUtilProxy;
 
 	@Test
 	public void userGetRewards() {
-		RewardsService rewardsService = new RewardsService();
-
 		InternalTestHelper.setInternalUserNumber(1);
-		TourGuideService tourGuideService = new TourGuideService(rewardsService);
+		tourGuideService.resetMap();
 
 		User user = tourGuideService.getAllUsers().get(0);
 
@@ -48,11 +57,10 @@ public class TestRewardsService {
 
 	@Test
 	public void nearAllAttractions() {
-		RewardsService rewardsService = new RewardsService();
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
-
 		InternalTestHelper.setInternalUserNumber(1);
-		TourGuideService tourGuideService = new TourGuideService(rewardsService);
+		tourGuideService.resetMap();
+
 		tourGuideService.locationTracker.stopTracking();
 		tourGuideService.rewardTracker.stopTracking();
 
@@ -63,6 +71,7 @@ public class TestRewardsService {
 
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 
+		rewardsService.setProximityBuffer(10);
 		assertEquals(attractionList.size(), userRewards.size());
 	}
 }
