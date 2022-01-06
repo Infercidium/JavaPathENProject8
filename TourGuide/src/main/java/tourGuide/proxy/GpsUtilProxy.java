@@ -24,6 +24,10 @@ public class GpsUtilProxy {
 
     public GpsUtilProxy() { }
 
+    public GpsUtilProxy(WebClient gpsClient) {
+        this.gpsClient = gpsClient;
+    }
+
     public List<Attraction> attractionsList() {
         return gpsClient.get().uri("/attractions").retrieve().bodyToFlux(Attraction.class).collectList().block();
     }
