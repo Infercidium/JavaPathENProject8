@@ -185,7 +185,7 @@ public class TourGuideService {
      * Move the selected user to the Disneyland coordinate, use during test.
      * @param user selected.
      */
-    public void GoToDisney(User user) {
+    public void goToDisney(User user) {
         Location location = new Location( -117.922008D, 33.817595D);
         VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), location, new Date());
         user.addToVisitedLocations(visitedLocation);

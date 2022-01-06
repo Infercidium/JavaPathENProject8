@@ -127,12 +127,12 @@ public class TestPerformance {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		tourGuideService.locationTracker.stopTracking();
 
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);
 		}
 
+		tourGuideService.locationTracker.stopTracking();
 		stopWatch.stop();
 
 

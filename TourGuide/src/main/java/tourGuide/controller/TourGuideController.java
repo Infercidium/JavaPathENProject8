@@ -14,9 +14,9 @@ import tourGuide.user.User;
 @RestController
 public class TourGuideController {
 
-	@Autowired
-	TourGuideService tourGuideService;
-	
+    @Autowired
+	private TourGuideService tourGuideService;
+
     @RequestMapping("/")
     public String index() {
         return "Greetings from TourGuide!";
@@ -31,7 +31,7 @@ public class TourGuideController {
     @RequestMapping("/goToDisneyland")
     public String goToDisney(@RequestParam String userName) {
         User user = tourGuideService.getUser(userName);
-       tourGuideService.GoToDisney(user);
+       tourGuideService.goToDisney(user);
         return getLocation(userName);
     }
 
