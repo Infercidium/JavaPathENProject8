@@ -12,7 +12,7 @@ import java.util.UUID;
 public class RewardCentralController {
 
     @Autowired
-    RewardCentral rewardCentral;
+    private RewardCentral rewardCentral;
 
     @RequestMapping("/RewardCentralPoint/{attractionId}/{userId}")
     public int getAttractionRewardPoints(@PathVariable UUID attractionId, @PathVariable UUID userId) {

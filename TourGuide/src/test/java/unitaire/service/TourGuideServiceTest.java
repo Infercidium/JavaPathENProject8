@@ -3,19 +3,26 @@ package unitaire.service;
 import com.jsoniter.output.JsonStream;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+import tourGuide.dto.UserDto;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
 import tourGuide.model.Provider;
 import tourGuide.model.VisitedLocation;
+import tourGuide.proxy.GpsUtilProxy;
+import tourGuide.proxy.RewardCentralProxy;
 import tourGuide.proxy.TripPricerProxy;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -28,23 +35,35 @@ import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {TourGuideService.class})
+@RunWith(SpringRunner.class)
 public class TourGuideServiceTest {
 
     @MockBean
-    RewardsService rewardsService = new RewardsService();
+    private RewardsService rewardsService;
 
-    TourGuideService tourGuideService = new TourGuideService(rewardsService);
+    @MockBean
+    private TripPricerProxy tripPricerProxy;
+
+    @MockBean
+    private GpsUtilProxy gpsUtilProxy;
+
+    @MockBean
+    private RewardCentralProxy rewardCentralProxy;
+
+    @Autowired
+    private TourGuideService tourGuideService;
 
 
-    UUID uuid = UUID.randomUUID();
-    UUID uuid2 = UUID.randomUUID();
-    User user = new User(uuid, "name", "phone", "mail");
-    Location location = new Location(10, 10);
-    Location disneyLocation = new Location( -117.922008D, 33.817595D);
-    VisitedLocation visitedLocation = new VisitedLocation(uuid, location, new Date());
-    Attraction attraction = new Attraction("attraction", "city", "state", 10, 10);
-    UserReward userReward = new UserReward(visitedLocation, attraction, 100);
-    Provider provider = new Provider(uuid, "name", 100);
+    private UUID uuid = UUID.randomUUID();
+    private UUID uuid2 = UUID.randomUUID();
+    private User user = new User(uuid, "name", "phone", "mail");
+    private Location location = new Location(10, 10);
+    private Location disneyLocation = new Location( -117.922008D, 33.817595D);
+    private VisitedLocation visitedLocation = new VisitedLocation(uuid, location, new Date());
+    private VisitedLocation visitedLocation2 = new VisitedLocation(uuid2, location, new Date());
+    private Attraction attraction = new Attraction("attraction", "city", "state", 10, 10);
+    private UserReward userReward = new UserReward(visitedLocation, attraction, 100);
+    private Provider provider = new Provider(uuid, "name", 100);
 
     @Before
     public void setUp() throws Exception {
@@ -100,20 +119,34 @@ public class TourGuideServiceTest {
     }
 
     @Test
-    public void getTripDeals() { //TODO BLocage
-        /*when(tripPricerProxy.price(isA(String.class), isA(User.class), isA(Integer.class))).thenReturn(Collections.singletonList(provider));
+    public void getTripDeals() {
+        when(tripPricerProxy.price(isA(String.class), isA(User.class), isA(Integer.class))).thenReturn(Collections.singletonList(provider));
 
         Provider result = tourGuideService.getTripDeals(user).get(0);
-        assertEquals(provider, result);*/
+        assertEquals(provider, result);
     }
 
     @Test
-    public void trackUserLocation() { //TODO BLocage
+    public void trackUserLocation() {
+        when(gpsUtilProxy.visitedLocation(isA(User.class))).thenReturn(visitedLocation2);
 
+        tourGuideService.trackUserLocation(user);
+        assertEquals(uuid2, user.getLastVisitedLocation().getUserId());
     }
 
     @Test
-    public void getNearByAttractions() { //TODO BLocage
+    public void getNearByAttractions() {
+        List<Attraction> test = new ArrayList<>();
+        test.add(attraction);
+        test.add(new Attraction("attraction2", "city2", "state2", 12, 12));
+        test.add(new Attraction("attraction3", "city3", "state3", 13, 13));
+        test.add(new Attraction("attraction4", "city4", "state4", 14, 14));
+        test.add(new Attraction("attraction5", "city5", "state5", 15, 15));
+        when(gpsUtilProxy.attractionsList()).thenReturn(test);
+        UserDto result = tourGuideService.getNearByAttractions("name");
+        assertEquals("attraction", result.getAttractions().get(0).getName());
+        assertEquals("attraction5", result.getAttractions().get(4).getName());
+        assertEquals(5, result.getAttractions().size());
     }
 
     @Test

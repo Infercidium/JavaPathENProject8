@@ -25,13 +25,13 @@ import tourGuide.user.UserReward;
 public class TestRewardsService {
 
 	@Autowired
-	RewardsService rewardsService;
+	private RewardsService rewardsService;
 
 	@Autowired
-	TourGuideService tourGuideService;
+	private TourGuideService tourGuideService;
 
 	@Autowired
-	GpsUtilProxy gpsUtilProxy;
+	private GpsUtilProxy gpsUtilProxy;
 
 	@Test
 	public void userGetRewards() {

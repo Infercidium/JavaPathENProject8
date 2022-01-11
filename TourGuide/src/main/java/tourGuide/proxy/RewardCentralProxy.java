@@ -17,7 +17,7 @@ public class RewardCentralProxy {
     public String rewardCentralUrlBase;
 
     @Autowired
-    WebClient rewardClient;
+    private WebClient rewardClient;
 
     public RewardCentralProxy() { }
 

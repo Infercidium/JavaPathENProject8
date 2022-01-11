@@ -50,13 +50,13 @@ public class TestPerformance {
 	 *          assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	 */
 	@Autowired
-	RewardsService rewardsService;
+	private RewardsService rewardsService;
 
 	@Autowired
-	TourGuideService tourGuideService;
+	private TourGuideService tourGuideService;
 
 	@Autowired
-	GpsUtilProxy gpsUtilProxy;
+	private GpsUtilProxy gpsUtilProxy;
 
 	private final int usersNumbers = 100000;
 
