@@ -26,10 +26,10 @@ import tourGuide.user.User;
 public class TestTourGuideService {
 
     @Autowired
-    RewardsService rewardsService;
+    private RewardsService rewardsService;
 
     @Autowired
-    TourGuideService tourGuideService;
+    private TourGuideService tourGuideService;
 
     @Test
     public void getUserLocation() {

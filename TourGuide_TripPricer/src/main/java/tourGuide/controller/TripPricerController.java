@@ -14,7 +14,7 @@ import java.util.UUID;
 public class TripPricerController {
 
     @Autowired
-    TripPricer tripPricer;
+    private TripPricer tripPricer;
 
     @GetMapping("/price/{apiKey}/{attractionId}/{adult}/{children}/}{nightsStay}/{rewardsPoints}")
     public List<Provider> getPricer(@PathVariable String apiKey, @PathVariable UUID attractionId, @PathVariable int adult,
