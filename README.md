@@ -46,47 +46,91 @@ this information is available in `docker-compose`: `tourguide_net`, the `ipv4_ad
 
 Setup for docker-compose:
 
+Entry into the Main module: 
 `cd TourGuide`
 
+BootJar construction:
 `./gradlew bootjar`
 
+Back to the whole project:
 `cd..`
 
+Entry into the GpsUtil module:
 `cd TourGuide_GpsUtil`
 
+BootJar construction:
 `./gradlew bootjar`
 
+Back to the whole project:
 `cd..`
 
+Entry into the RewardCentral module:
 `cd TourGuide_RewardCentral`
 
+BootJar construction:
 `./gradlew bootjar`
 
+Back to the whole project:
 `cd..`
 
+Entering the TripPricer module:
 `cd TourGuide_TripPricer`
 
+BootJar construction:
 `./gradlew bootjar`
 
+Back to the whole project:
 `cd..`
 
 And finally `docker-compose up`, for stop use `docker-compose stop`.
 
-## Testing A FAIRE
-This application has Unit tests written.
-It is possible to have access to Surefire Report and Jacoco to visualize the execution time and the coverage of the tests following this path:
-`PayMyBuddy/target/site/project-reports.html`
+## Testing
+This app has Unit test written. Once the test has been generated, it can be accessed by following this path: 
+
+`JavaPathENProject8\TourGuide\build\jacocoHtml\index.html` for the Main module, 
+
+`JavaPathENProject8\TourGuide_GpsUtil\build\jacocoHtml\index.html` for the GpsUtil module, 
+
+`JavaPathENProject8\TourGuide_RewardCentral\build\jacocoHtml\index.html` for the RewardCentral module 
+
+and `JavaPathENProject8\TourGuide_TripPricer\build\jacocoHtml\index.html` for the TripPricer module.
 
 ### Test Report
 
-After using the following command in the terminal:
-`mvn clean verify site`
+To generate the 4 reports:
 
-### Checkstyle Report
+Entry into the Main module: 
+`cd TourGuide`
 
-Checkstyle results takes into account the classes generated automatically by the Mapper, adding more than 300 uncorrectable errors.
-But it is possible to make them disappear with the command:
-`mvn site`
+Test generation:
+`./gradlew test`
 
-However after that it is possible that the application is having difficulties working correctly, in this case you have to do:
-`mvn clean`
+Back to the whole project:
+`cd..`
+
+Entry into the GpsUtil module:
+`cd TourGuide_GpsUtil`
+
+Test generation:
+`./gradlew test`
+
+Back to the whole project:
+`cd..`
+
+Entry into the RewardCentral module:
+`cd TourGuide_RewardCentral`
+
+Test generation:
+`./gradlew test`
+
+Back to the whole project:
+`cd..`
+
+Entering the TripPricer module:
+`cd TourGuide_TripPricer`
+
+Test generation:
+`./gradlew test`
+
+Back to the whole project:
+`cd..`
